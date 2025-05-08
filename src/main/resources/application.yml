@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: afisha
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/afisha
+    username: postgres
+    password: 1234
+
+server:
+  port: 8080
