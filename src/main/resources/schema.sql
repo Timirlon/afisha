@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS compilations (
     pinned BOOLEAN NOT NULL
 );
 
-CREATE TABLE events_compilations (
+CREATE TABLE IF NOT EXISTS events_compilations (
     event_id INT REFERENCES events,
     compilation_id INT REFERENCES compilations,
     PRIMARY KEY (event_id, compilation_id)
