@@ -1,25 +1,26 @@
 CREATE TABLE IF NOT EXISTS categories (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) UNIQUE NOT NULL
+    name VARCHAR(50) UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL
+    name VARCHAR(250) NOT NULL,
+    email VARCHAR(254) UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS events (
     id SERIAL PRIMARY KEY,
-    title VARCHAR(100) NOT NULL,
-    annotation VARCHAR(255) NOT NULL,
-    description VARCHAR(1000) NOT NULL,
+    title VARCHAR(120) NOT NULL,
+    annotation VARCHAR(2000) NOT NULL,
+    description VARCHAR(7000) NOT NULL,
     participant_limit INT NOT NULL,
     date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     location_lon INT NOT NULL,
     location_lan INT NOT NULL,
     paid BOOLEAN NOT NULL,
     request_moderation BOOLEAN NOT NULL,
+    state VARCHAR(30),
     category_id INT REFERENCES categories NOT NULL,
     initiator_id INT REFERENCES users NOT NULL,
     created TIMESTAMP WITHOUT TIME ZONE NOT NULL,
@@ -39,7 +40,7 @@ CREATE TABLE IF NOT EXISTS requests (
 
 CREATE TABLE IF NOT EXISTS compilations (
     id SERIAL PRIMARY KEY,
-    title VARCHAR (100) NOT NULL,
+    title VARCHAR (50) NOT NULL,
     pinned BOOLEAN NOT NULL
 );
 
