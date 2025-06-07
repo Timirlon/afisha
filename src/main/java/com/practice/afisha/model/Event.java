@@ -26,21 +26,22 @@ public class Event {
     String description;
 
     @Column(name = "participant_limit")
-    int participantLimit;
+    Integer participantLimit;
 
     LocalDateTime date;
 
     @Column(name = "location_lon")
-    int locationLongitude;
+    Double locationLongitude;
 
     @Column(name = "location_lat")
-    int locationLatitude;
+    Double locationLatitude;
 
-    boolean paid;
+    Boolean paid;
 
     @Column(name = "request_moderation")
-    boolean requestModeration;
+    Boolean requestModeration;
 
+    @Enumerated(value = EnumType.STRING)
     PublicationState state;
 
     @ManyToOne
@@ -53,10 +54,10 @@ public class Event {
 
     LocalDateTime published;
 
-    int views;
+    Integer views;
 
     @Column(name = "confirmed_requests")
-    int confirmedRequests;
+    Integer confirmedRequests;
 
     @OneToMany(mappedBy = "event")
     final List<Request> requests = new ArrayList<>();

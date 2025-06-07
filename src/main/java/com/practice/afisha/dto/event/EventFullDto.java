@@ -25,7 +25,7 @@ public class EventFullDto {
 
     UserShortDto initiator;
 
-    Location location;
+    final Location location = new Location();
 
     Boolean paid;
 
@@ -40,4 +40,13 @@ public class EventFullDto {
     String title;
 
     int views;
+
+
+    public void setLocationLat(Double latValue) {
+        location.setLat(latValue);
+    }
+
+    public void setLocationLon(Double lonValue) {
+        location.setLon(lonValue);
+    }
 }

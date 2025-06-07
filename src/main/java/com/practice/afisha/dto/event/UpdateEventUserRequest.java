@@ -18,7 +18,7 @@ public class UpdateEventUserRequest {
 
     String eventDate;
 
-    Location location;
+    final Location location = new Location();
 
     Boolean paid;
 

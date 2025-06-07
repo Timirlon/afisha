@@ -12,11 +12,11 @@ import java.util.List;
 public class ApiError {
     final List<String> errors = new ArrayList<>();
 
-    String message;
+    String status;
 
     String reason;
 
-    String status;
+    String message;
 
     String timestamp;
 }
