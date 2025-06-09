@@ -2,6 +2,7 @@ package com.practice.afisha.util;
 
 import lombok.experimental.UtilityClass;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @UtilityClass
@@ -10,5 +11,13 @@ public class DateTimeFormatConstants {
 
     public static DateTimeFormatter getDefaultFormatter() {
         return DateTimeFormatter.ofPattern(FORMAT_PATTERN);
+    }
+
+    public static LocalDateTime parseToLocalDateTime(String str) {
+        return LocalDateTime.parse(str, getDefaultFormatter());
+    }
+
+    public static String formatToString(LocalDateTime dateTime) {
+        return dateTime.format(getDefaultFormatter());
     }
 }

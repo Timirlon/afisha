@@ -66,7 +66,7 @@ public class EventPrivateController {
     }
 
     private UserStateAction getStateAction(String strStateAction) {
-        if (strStateAction.isBlank()) {
+        if (strStateAction == null || strStateAction.isBlank()) {
             return null;
         }
 

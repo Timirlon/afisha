@@ -60,7 +60,7 @@ public class Event {
     Integer confirmedRequests;
 
     @OneToMany(mappedBy = "event")
-    final List<Request> requests = new ArrayList<>();
+    final List<ParticipationRequest> requests = new ArrayList<>();
 
     @ManyToMany
     final List<Compilation> compilations = new ArrayList<>();

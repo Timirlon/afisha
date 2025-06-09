@@ -26,5 +26,5 @@ public class User {
     final List<Event> event = new ArrayList<>();
 
     @OneToMany(mappedBy = "requester")
-    final List<Request> requests = new ArrayList<>();
+    final List<ParticipationRequest> requests = new ArrayList<>();
 }

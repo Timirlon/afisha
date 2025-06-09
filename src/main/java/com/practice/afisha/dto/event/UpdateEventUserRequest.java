@@ -1,5 +1,6 @@
 package com.practice.afisha.dto.event;
 
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -22,6 +23,7 @@ public class UpdateEventUserRequest {
 
     Boolean paid;
 
+    @PositiveOrZero
     Integer participantLimit;
 
     Boolean requestModeration;

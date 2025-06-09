@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface EventRepository extends JpaRepository<Event, Integer> {
@@ -105,4 +106,7 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
                                                                   Pageable pageable);
 
     Optional<Event> findByIdAndState(int id, PublicationState state);
+
+
+    List<Event> findAllByIdIn(Collection<Integer> ids);
 }
