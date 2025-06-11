@@ -25,9 +25,9 @@ public class UserController {
     UserMapper userMapper;
 
     @GetMapping
-    public List<UserDto> findAllByIdIn(@RequestParam Collection<Integer> ids,
-                                 @RequestParam(defaultValue = "0") int from,
-                                 @RequestParam(defaultValue = "10") int size) {
+    public List<UserDto> findAllByIdIn(@RequestParam(required = false) Collection<Integer> ids,
+                                       @RequestParam(defaultValue = "0") int from,
+                                       @RequestParam(defaultValue = "10") int size) {
 
         return userMapper.toDto(
                 userService.findAllByIdIn(ids, from, size));

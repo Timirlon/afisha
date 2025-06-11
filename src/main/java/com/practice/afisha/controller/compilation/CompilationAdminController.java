@@ -38,11 +38,13 @@ public class CompilationAdminController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteById(@PathVariable int compId) {
         compilationService.deleteById(compId);
+
+        System.out.println("delete used.");
     }
 
     @PatchMapping("/{compId}")
     public CompilationDto updateById(@PathVariable int compId,
-                                  @RequestBody @Valid UpdateCompilationRequest compRequest) {
+                                     @RequestBody @Valid UpdateCompilationRequest compRequest) {
 
         Compilation compilation = compilationMapper.fromDto(compRequest);
         Collection<Integer> eventIds = compRequest.getEvents();

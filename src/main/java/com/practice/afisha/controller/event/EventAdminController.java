@@ -8,6 +8,7 @@ import com.practice.afisha.mapper.EventMapper;
 import com.practice.afisha.model.Event;
 import com.practice.afisha.model.PublicationState;
 import com.practice.afisha.service.EventService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,11 +30,11 @@ public class EventAdminController {
     EventMapper eventMapper;
 
     @GetMapping
-    public List<EventFullDto> findAllByMultipleParameters(@RequestParam Collection<Integer> users,
-                                                          @RequestParam Collection<String> states,
-                                                          @RequestParam Collection<Integer> categories,
-                                                          @RequestParam String rangeStart,
-                                                          @RequestParam String rangeEnd,
+    public List<EventFullDto> findAllByMultipleParameters(@RequestParam(required = false) Collection<Integer> users,
+                                                          @RequestParam(required = false) Collection<String> states,
+                                                          @RequestParam(required = false) Collection<Integer> categories,
+                                                          @RequestParam(required = false) String rangeStart,
+                                                          @RequestParam(required = false) String rangeEnd,
                                                           @RequestParam(defaultValue = "0") int from,
                                                           @RequestParam(defaultValue = "10") int size) {
         LocalDateTime rangeStartDate = LocalDateTime.parse(rangeStart, getDefaultFormatter());
@@ -51,7 +52,7 @@ public class EventAdminController {
 
     @PatchMapping("/{eventId}")
     public EventFullDto updateById(@PathVariable int eventId,
-                                   @RequestBody UpdateEventAdminRequest eventRequest) {
+                                   @RequestBody @Valid UpdateEventAdminRequest eventRequest) {
 
         Event event = eventMapper.fromDto(eventRequest);
         int categoryId;

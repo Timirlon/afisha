@@ -72,7 +72,7 @@ public class EventMapper {
             event.setLocationLongitude(eventDto.getLocation().getLon());
         }
 
-        if (event.getDate() != null) {
+        if (eventDto.getEventDate() != null) {
             event.setDate(
                     LocalDateTime.parse(eventDto.getEventDate(), getDefaultFormatter()));
         }
@@ -96,7 +96,7 @@ public class EventMapper {
             event.setLocationLongitude(eventDto.getLocation().getLon());
         }
 
-        if (event.getDate() != null) {
+        if (eventDto.getEventDate() != null) {
             event.setDate(
                     LocalDateTime.parse(eventDto.getEventDate(), getDefaultFormatter()));
         }

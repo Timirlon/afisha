@@ -1,5 +1,6 @@
 package com.practice.afisha.service;
 
+import com.practice.afisha.exception.RequestInputException;
 import com.practice.afisha.util.AdminStateAction;
 import com.practice.afisha.util.EventSort;
 import com.practice.afisha.util.UserStateAction;
@@ -161,6 +162,7 @@ public class EventService {
         int pageNumber = from / size;
         Pageable pageable = PageRequest.of(pageNumber, size);
 
+
         return eventRepository.findAllByInitiator_IdInAndStateInAndCategory_IdInAndDateBetween(
                 initiatorIds, eventStates, categoryIds, rangeStart, rangeEnd, pageable);
     }
@@ -265,6 +267,10 @@ public class EventService {
         Pageable pageable = PageRequest.of(pageNumber, size);
         String lowerCaseText = searchText.toLowerCase();
 
+        if (rangeEnd != null && rangeEnd.isBefore(rangeStart)) {
+            throw new RequestInputException("Range end must be after range start!");
+        }
+
         PublicationState publishedState = PublicationState.PUBLISHED;
 
         if (!onlyAvailable && sort == EventSort.EVENT_DATE) {
@@ -296,6 +302,23 @@ public class EventService {
                         String.format("Event with id=%d was not found", eventId)));
     }
 
+    public Event updateConfirmedRequests(int eventId, int newConfirmedReq) {
+        if (newConfirmedReq == 0) {
+            return null;
+        }
+
+        Event foundEvent = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("Event with id=%d was not found", eventId)));
+
+        int updConfirmedRequests = foundEvent.getConfirmedRequests() + newConfirmedReq;
+        foundEvent.setConfirmedRequests(updConfirmedRequests);
+
+        eventRepository.save(foundEvent);
+
+        return foundEvent;
+    }
+
     private User findUserById(int userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(
@@ -314,7 +337,7 @@ public class EventService {
 
         if (eventDate.isBefore(
                 now.plusHours(maxPossibleHours))) {
-            throw new InvalidConditionException(
+            throw new RequestInputException(
                     String.format("Field: eventDate. Error: должно содержать дату, которая еще не наступила. Value: %s",
                             eventDate));
         }

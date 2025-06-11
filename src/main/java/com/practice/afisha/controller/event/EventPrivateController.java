@@ -1,10 +1,16 @@
 package com.practice.afisha.controller.event;
 
 import com.practice.afisha.dto.event.*;
+import com.practice.afisha.dto.request.EventRequestStatusUpdateRequest;
+import com.practice.afisha.dto.request.EventRequestStatusUpdateResult;
+import com.practice.afisha.dto.request.ParticipationRequestDto;
 import com.practice.afisha.exception.RequestInputException;
 import com.practice.afisha.mapper.EventMapper;
+import com.practice.afisha.mapper.RequestMapper;
+import com.practice.afisha.model.ConfirmationStatus;
 import com.practice.afisha.model.Event;
 import com.practice.afisha.service.EventService;
+import com.practice.afisha.service.RequestService;
 import com.practice.afisha.util.UserStateAction;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -23,6 +29,9 @@ import java.util.List;
 public class EventPrivateController {
     EventService eventService;
     EventMapper eventMapper;
+
+    RequestService requestService;
+    RequestMapper requestMapper;
 
     @GetMapping
     public List<EventShortDto> findAllByInitiatorId(@PathVariable int userId,
@@ -65,6 +74,31 @@ public class EventPrivateController {
                 eventService.updateByIdUserRequest(eventId, event, userId, categoryId, stateAction));
     }
 
+    @GetMapping("/{eventId}/requests")
+    public List<ParticipationRequestDto> findAllByEventIdAndInitiatorId(@PathVariable int eventId,
+                                                                        @PathVariable int userId) {
+        return requestMapper.toDto(
+                requestService.findAllByEventIdAndInitiatorId(eventId, userId));
+    }
+
+    @PatchMapping("/{eventId}/requests")
+    public EventRequestStatusUpdateResult changeEventRequestStatus(@RequestBody EventRequestStatusUpdateRequest dto,
+                                                                   @PathVariable int eventId,
+                                                                   @PathVariable int userId) {
+
+        List<Integer> requestIds = dto.getRequestIds();
+        ConfirmationStatus status = getStatus(dto.getStatus());
+
+
+        EventRequestStatusUpdateResult result =  requestMapper.toUpdDto(
+                requestService.changeEventRequestStatus(requestIds, status, eventId, userId));
+
+        eventService.updateConfirmedRequests(eventId, result.getConfirmedRequests().size());
+
+
+        return result;
+    }
+
     private UserStateAction getStateAction(String strStateAction) {
         if (strStateAction == null || strStateAction.isBlank()) {
             return null;
@@ -82,5 +116,19 @@ public class EventPrivateController {
 
 
         throw new RequestInputException("Invalid state action data.");
+    }
+
+    private ConfirmationStatus getStatus(String strStatus) {
+        if (strStatus.equals(
+                ConfirmationStatus.CONFIRMED.name())) {
+            return ConfirmationStatus.CONFIRMED;
+        }
+
+        if (strStatus.equals(
+                ConfirmationStatus.REJECTED.name())) {
+            return ConfirmationStatus.REJECTED;
+        }
+
+        throw new RequestInputException("Invalid confirmation status for request.");
     }
 }

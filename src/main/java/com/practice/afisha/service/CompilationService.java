@@ -29,6 +29,10 @@ public class CompilationService {
 
         compilation.setEvents(events);
 
+        if (compilation.getPinned() == null) {
+            compilation.setPinned(false);
+        }
+
         compilationRepository.save(compilation);
 
 
@@ -36,13 +40,13 @@ public class CompilationService {
     }
 
     public void deleteById(int id) {
-        findByIdOrElseThrowNotFound(id);
+        findByIdOrElseThrow(id);
 
         compilationRepository.deleteById(id);
     }
 
     public Compilation updateById(int id, Compilation compilation, Collection<Integer> eventIds) {
-        Compilation foundCompilation = findByIdOrElseThrowNotFound(id);
+        Compilation foundCompilation = findByIdOrElseThrow(id);
 
         List<Event> events = null;
         if (eventIds != null && !eventIds.isEmpty()) {
@@ -67,18 +71,22 @@ public class CompilationService {
         return foundCompilation;
     }
 
-    public Page<Compilation> findAllByPinned(boolean pinned, int from, int size) {
+    public Page<Compilation> findAllByPinned(Boolean pinned, int from, int size) {
         int pageNumber = from / size;
         Pageable pageable = PageRequest.of(pageNumber, size);
+
+        if (pinned == null) {
+            return compilationRepository.findAll(pageable);
+        }
 
         return compilationRepository.findAllByPinned(pinned, pageable);
     }
 
     public Compilation findById(int id) {
-        return findByIdOrElseThrowNotFound(id);
+        return findByIdOrElseThrow(id);
     }
 
-    private Compilation findByIdOrElseThrowNotFound(int compId) {
+    private Compilation findByIdOrElseThrow(int compId) {
         return compilationRepository.findById(compId)
                 .orElseThrow(() -> new NotFoundException(
                         String.format("Compilation with id=%d was not found", compId)));

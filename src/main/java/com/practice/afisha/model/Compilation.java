@@ -22,7 +22,7 @@ public class Compilation {
 
     Boolean pinned;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "events_compilations",
             joinColumns = @JoinColumn(name = "compilation_id"),

@@ -1,4 +1,4 @@
-package com.practice.afisha.dto.event;
+package com.practice.afisha.dto.request;
 
 import lombok.AccessLevel;
 import lombok.Data;

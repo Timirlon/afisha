@@ -13,7 +13,7 @@ import java.util.Set;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NewCompilationDto {
-    @NotEmpty
+
     final Set<Integer> events = new HashSet<>();
 
     Boolean pinned;

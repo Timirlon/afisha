@@ -20,7 +20,7 @@ public class CompilationPublicController {
     CompilationMapper compilationMapper;
 
     @GetMapping
-    public List<CompilationDto> findAllByPinned(@RequestParam boolean pinned,
+    public List<CompilationDto> findAllByPinned(@RequestParam(required = false) Boolean pinned,
                                                 @RequestParam(defaultValue = "0") int from,
                                                 @RequestParam(defaultValue = "10") int size) {
 

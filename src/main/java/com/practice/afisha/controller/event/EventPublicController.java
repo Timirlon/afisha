@@ -4,11 +4,14 @@ import com.practice.afisha.dto.event.EventFullDto;
 import com.practice.afisha.dto.event.EventShortDto;
 import com.practice.afisha.exception.RequestInputException;
 import com.practice.afisha.mapper.EventMapper;
+import com.practice.afisha.model.Event;
 import com.practice.afisha.service.EventService;
+import com.practice.afisha.service.StatisticsService;
 import com.practice.afisha.util.EventSort;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -24,6 +27,8 @@ import static com.practice.afisha.util.DateTimeFormatConstants.getDefaultFormatt
 public class EventPublicController {
     EventService eventService;
     EventMapper eventMapper;
+
+
 
     @GetMapping
     public List<EventShortDto> findAll(@RequestParam String text,
@@ -47,15 +52,21 @@ public class EventPublicController {
         }
         EventSort sortMethod = getSortFromString(sort);
 
-        return eventMapper.toShortDto(
-                eventService.findAllByMultipleParametersPublicRequest(
-                        text, categories, paid, start, end, onlyAvailable, sortMethod, from, size));
+        Page<Event> result = eventService.findAllByMultipleParametersPublicRequest(
+                text, categories, paid, start, end, onlyAvailable, sortMethod, from, size);
+
+
+
+        return eventMapper.toShortDto(result);
     }
 
     @GetMapping("/{id}")
     public EventFullDto findById(@PathVariable int id) {
-        return eventMapper.toDto(
-                eventService.findByIdPublicRequest(id));
+        Event result = eventService.findByIdPublicRequest(id);
+
+
+
+        return eventMapper.toDto(result);
     }
 
     private EventSort getSortFromString(String strSort) {
