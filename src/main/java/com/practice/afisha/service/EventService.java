@@ -25,6 +25,8 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
+import static com.practice.afisha.util.DateTimeFormatConstants.parseToLocalDateTime;
+
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 
@@ -153,18 +155,145 @@ public class EventService {
     }
 
     public Page<Event> findAllByMultipleParametersAdminRequest(Collection<Integer> initiatorIds,
-                                                               Collection<PublicationState> eventStates,
+                                                               Collection<String> eventStates,
                                                                Collection<Integer> categoryIds,
-                                                               LocalDateTime rangeStart,
-                                                               LocalDateTime rangeEnd,
+                                                               String rangeStart,
+                                                               String rangeEnd,
                                                                int from,
                                                                int size) {
+
+
+        List<PublicationState> convertedStates = List.of();
+        if (eventStates != null) {
+            convertedStates = eventStates.stream()
+                    .map(this::getEventPublicationState)
+                    .distinct()
+                    .toList();
+        }
+
+        if (initiatorIds == null) {
+            initiatorIds = List.of();
+        }
+
+        if (categoryIds == null) {
+            categoryIds = List.of();
+        }
+
+        LocalDateTime start = null;
+        LocalDateTime end = null;
+        if (rangeStart != null) {
+            start = parseToLocalDateTime(rangeStart);
+        }
+
+        if (rangeEnd != null) {
+            end = parseToLocalDateTime(rangeEnd);
+        }
+
+
         int pageNumber = from / size;
         Pageable pageable = PageRequest.of(pageNumber, size);
 
 
-        return eventRepository.findAllByInitiator_IdInAndStateInAndCategory_IdInAndDateBetween(
-                initiatorIds, eventStates, categoryIds, rangeStart, rangeEnd, pageable);
+        if (!initiatorIds.isEmpty()
+                && !convertedStates.isEmpty()
+                && !categoryIds.isEmpty()
+                && start != null
+                && end != null) {
+            return eventRepository.findAllByInitiator_IdInAndStateInAndCategory_IdInAndDateBetween(
+                    initiatorIds, convertedStates, categoryIds, start, end, pageable);
+        }
+
+        if (initiatorIds.isEmpty()
+                && !convertedStates.isEmpty()
+                && !categoryIds.isEmpty()
+                && start != null
+                && end != null) {
+            return eventRepository.findAllByStateInAndCategory_IdInAndDateBetween(
+                    convertedStates, categoryIds, start, end, pageable);
+        }
+
+        if (initiatorIds.isEmpty()
+                && convertedStates.isEmpty()
+                && !categoryIds.isEmpty()
+                && start != null
+                && end != null) {
+            return eventRepository.findAllByCategory_IdInAndDateBetween(
+                    categoryIds, start, end, pageable);
+        }
+
+        if (initiatorIds.isEmpty()
+                && convertedStates.isEmpty()
+                && categoryIds.isEmpty()
+                && start != null
+                && end != null) {
+            return eventRepository.findAllByDateBetween(
+                    start, end, pageable);
+        }
+
+        if (initiatorIds.isEmpty()
+                && convertedStates.isEmpty()
+                && categoryIds.isEmpty()
+                && start == null
+                && end == null) {
+            return eventRepository.findAll(
+                    pageable);
+        }
+
+        if (!initiatorIds.isEmpty()
+                && convertedStates.isEmpty()
+                && !categoryIds.isEmpty()
+                && start != null
+                && end != null) {
+            return eventRepository.findAllByInitiator_IdInAndCategory_IdInAndDateBetween(
+                    initiatorIds, categoryIds, start, end, pageable);
+        }
+
+        if (!initiatorIds.isEmpty()
+                && convertedStates.isEmpty()
+                && categoryIds.isEmpty()
+                && start != null
+                && end != null) {
+            return eventRepository.findAllByInitiator_IdInAndDateBetween(
+                    initiatorIds, start, end, pageable);
+        }
+
+        if (!initiatorIds.isEmpty()
+                && convertedStates.isEmpty()
+                && categoryIds.isEmpty()
+                && start == null
+                && end == null) {
+            return eventRepository.findAllByInitiator_IdIn(
+                    initiatorIds, pageable);
+        }
+
+        if (!initiatorIds.isEmpty()
+                && !convertedStates.isEmpty()
+                && categoryIds.isEmpty()
+                && start != null
+                && end != null) {
+            return eventRepository.findAllByInitiator_IdInAndStateInAndDateBetween(
+                    initiatorIds, convertedStates, start, end, pageable);
+        }
+
+        if (!initiatorIds.isEmpty()
+                && !convertedStates.isEmpty()
+                && categoryIds.isEmpty()
+                && start == null
+                && end == null) {
+            return eventRepository.findAllByInitiator_IdInAndStateIn(
+                    initiatorIds, convertedStates, pageable);
+        }
+
+        if (!initiatorIds.isEmpty()
+                && !convertedStates.isEmpty()
+                && !categoryIds.isEmpty()
+                && start == null
+                && end == null) {
+            return eventRepository.findAllByInitiator_IdInAndStateInAndCategory_IdIn(
+                    initiatorIds, convertedStates, categoryIds, pageable);
+        }
+
+        return Page.empty();
     }
 
     public Event updateByIdAdminRequest(int eventId, Event updateEvent,
@@ -256,42 +385,410 @@ public class EventService {
 
     public Page<Event> findAllByMultipleParametersPublicRequest(String searchText,
                                                                 List<Integer> categoriesIds,
-                                                                boolean isPaid,
-                                                                LocalDateTime rangeStart,
-                                                                LocalDateTime rangeEnd,
-                                                                boolean onlyAvailable,
+                                                                Boolean isPaid,
+                                                                String rangeStartStr,
+                                                                String rangeEndStr,
+                                                                Boolean onlyAvailable,
                                                                 EventSort sort,
                                                                 int from,
                                                                 int size) {
         int pageNumber = from / size;
         Pageable pageable = PageRequest.of(pageNumber, size);
-        String lowerCaseText = searchText.toLowerCase();
 
-        if (rangeEnd != null && rangeEnd.isBefore(rangeStart)) {
+        if (searchText == null || searchText.isBlank()) {
+            searchText = "";
+        }
+
+        if (categoriesIds == null) {
+            categoriesIds = List.of();
+        }
+
+        LocalDateTime start;
+        LocalDateTime end;
+        if (rangeStartStr != null && rangeEndStr != null
+                && !rangeStartStr.isBlank() && !rangeEndStr.isBlank()) {
+
+            start = parseToLocalDateTime(rangeStartStr);
+            end = parseToLocalDateTime(rangeEndStr);
+        } else {
+            start = LocalDateTime.now();
+            end = null;
+        }
+
+        if (end != null && end.isBefore(start)) {
             throw new RequestInputException("Range end must be after range start!");
         }
 
         PublicationState publishedState = PublicationState.PUBLISHED;
 
-        if (!onlyAvailable && sort == EventSort.EVENT_DATE) {
-            return eventRepository.findAllByMultipleParametersOrderByDate(
-                    lowerCaseText, categoriesIds, isPaid, rangeStart, rangeEnd, publishedState, pageable);
+
+
+        if (!onlyAvailable && sort == EventSort.EVENT_DATE
+                && !categoriesIds.isEmpty()
+                && isPaid != null
+                && end != null) {
+
+            return eventRepository
+                    .findAllByAnnotationContainingIgnoreCaseOrTitleContainingIgnoreCaseAndCategoryIdInAndPaidIsAndDateBetweenAndStateIsOrderByDate(
+                            searchText,
+                            searchText,
+                            categoriesIds,
+                            isPaid,
+                            start,
+                            end,
+                            publishedState,
+                            pageable);
         }
 
-        if (!onlyAvailable && sort == EventSort.VIEWS) {
-            return eventRepository.findAllByMultipleParametersOrderByViews(
-                    lowerCaseText, categoriesIds, isPaid, rangeStart, rangeEnd, publishedState, pageable);
+        if (!onlyAvailable && sort == EventSort.EVENT_DATE
+                && categoriesIds.isEmpty()
+                && isPaid != null
+                && end != null) {
+
+            return eventRepository
+                    .findAllByAnnotationContainingIgnoreCaseOrTitleContainingIgnoreCaseAndPaidIsAndDateBetweenAndStateIsOrderByDate(
+                            searchText,
+                            searchText,
+                            isPaid,
+                            start,
+                            end,
+                            publishedState,
+                            pageable);
+        }
+
+        if (!onlyAvailable && sort == EventSort.EVENT_DATE
+                && categoriesIds.isEmpty()
+                && isPaid == null
+                && end != null) {
+
+            return eventRepository
+                    .findAllByAnnotationContainingIgnoreCaseOrTitleContainingIgnoreCaseAndDateBetweenAndStateIsOrderByDate(
+                            searchText,
+                            searchText,
+                            start,
+                            end,
+                            publishedState,
+                            pageable);
+        }
+
+        if (!onlyAvailable && sort == EventSort.EVENT_DATE
+                && categoriesIds.isEmpty()
+                && isPaid == null
+                && end == null) {
+
+            return eventRepository
+                    .findAllByAnnotationContainingIgnoreCaseOrTitleContainingIgnoreCaseAndDateAfterAndStateIsOrderByDate(
+                            searchText,
+                            searchText,
+                            start,
+                            publishedState,
+                            pageable);
+        }
+
+        if (!onlyAvailable && sort == EventSort.EVENT_DATE
+                && !categoriesIds.isEmpty()
+                && isPaid == null
+                && end != null) {
+
+            return eventRepository
+                    .findAllByAnnotationContainingIgnoreCaseOrTitleContainingIgnoreCaseAndCategoryIdInAndDateBetweenAndStateIsOrderByDate(
+                            searchText,
+                            searchText,
+                            categoriesIds,
+                            start,
+                            end,
+                            publishedState,
+                            pageable);
+        }
+
+        if (!onlyAvailable && sort == EventSort.EVENT_DATE
+                && !categoriesIds.isEmpty()
+                && isPaid == null
+                && end == null) {
+
+            return eventRepository
+                    .findAllByAnnotationContainingIgnoreCaseOrTitleContainingIgnoreCaseAndCategoryIdInAndDateAfterAndStateIsOrderByDate(
+                            searchText,
+                            searchText,
+                            categoriesIds,
+                            start,
+                            publishedState,
+                            pageable);
+        }
+
+        if (!onlyAvailable && sort == EventSort.EVENT_DATE
+                && !categoriesIds.isEmpty()
+                && isPaid != null
+                && end == null) {
+
+            return eventRepository
+                    .findAllByAnnotationContainingIgnoreCaseOrTitleContainingIgnoreCaseAndCategoryIdInAndPaidIsAndDateAfterAndStateIsOrderByDate(
+                            searchText,
+                            searchText,
+                            categoriesIds,
+                            isPaid,
+                            start,
+                            publishedState,
+                            pageable);
+        }
+
+        if (!onlyAvailable && sort == EventSort.VIEWS
+                && !categoriesIds.isEmpty()
+                && isPaid != null
+                && end != null) {
+
+            return eventRepository
+                    .findAllByAnnotationContainingIgnoreCaseOrTitleContainingIgnoreCaseAndCategoryIdInAndPaidIsAndDateBetweenAndStateIsOrderByViews(
+                            searchText,
+                            searchText,
+                            categoriesIds,
+                            isPaid,
+                            start,
+                            end,
+                            publishedState,
+                            pageable);
+        }
+
+        if (!onlyAvailable && sort == EventSort.VIEWS
+                && categoriesIds.isEmpty()
+                && isPaid != null
+                && end != null) {
+
+            return eventRepository
+                    .findAllByAnnotationContainingIgnoreCaseOrTitleContainingIgnoreCaseAndPaidIsAndDateBetweenAndStateIsOrderByViews(
+                            searchText,
+                            searchText,
+                            isPaid,
+                            start,
+                            end,
+                            publishedState,
+                            pageable);
+        }
+
+        if (!onlyAvailable && sort == EventSort.VIEWS
+                && categoriesIds.isEmpty()
+                && isPaid == null
+                && end != null) {
+
+            return eventRepository
+                    .findAllByAnnotationContainingIgnoreCaseOrTitleContainingIgnoreCaseAndDateBetweenAndStateIsOrderByViews(
+                            searchText,
+                            searchText,
+                            start,
+                            end,
+                            publishedState,
+                            pageable);
+        }
+
+        if (!onlyAvailable && sort == EventSort.VIEWS
+                && categoriesIds.isEmpty()
+                && isPaid == null
+                && end == null) {
+
+            return eventRepository
+                    .findAllByAnnotationContainingIgnoreCaseOrTitleContainingIgnoreCaseAndDateAfterAndStateIsOrderByViews(
+                            searchText,
+                            searchText,
+                            start,
+                            publishedState,
+                            pageable);
+        }
+
+        if (!onlyAvailable && sort == EventSort.VIEWS
+                && !categoriesIds.isEmpty()
+                && isPaid == null
+                && end != null) {
+
+            return eventRepository
+                    .findAllByAnnotationContainingIgnoreCaseOrTitleContainingIgnoreCaseAndCategoryIdInAndDateBetweenAndStateIsOrderByViews(
+                            searchText,
+                            searchText,
+                            categoriesIds,
+                            start,
+                            end,
+                            publishedState,
+                            pageable);
+        }
+
+        if (!onlyAvailable && sort == EventSort.VIEWS
+                && !categoriesIds.isEmpty()
+                && isPaid == null
+                && end == null) {
+
+            return eventRepository
+                    .findAllByAnnotationContainingIgnoreCaseOrTitleContainingIgnoreCaseAndCategoryIdInAndDateAfterAndStateIsOrderByViews(
+                            searchText,
+                            searchText,
+                            categoriesIds,
+                            start,
+                            publishedState,
+                            pageable);
+        }
+
+        if (!onlyAvailable && sort == EventSort.VIEWS
+                && !categoriesIds.isEmpty()
+                && isPaid != null
+                && end == null) {
+
+            return eventRepository
+                    .findAllByAnnotationContainingIgnoreCaseOrTitleContainingIgnoreCaseAndCategoryIdInAndPaidIsAndDateAfterAndStateIsOrderByViews(
+                            searchText,
+                            searchText,
+                            categoriesIds,
+                            isPaid,
+                            start,
+                            publishedState,
+                            pageable);
+        }
+
+        if (!onlyAvailable && sort == null
+                && !categoriesIds.isEmpty()
+                && isPaid != null
+                && end != null) {
+
+            return eventRepository
+                    .findAllByAnnotationContainingIgnoreCaseOrTitleContainingIgnoreCaseAndCategoryIdInAndPaidIsAndDateBetweenAndStateIs(
+                            searchText,
+                            searchText,
+                            categoriesIds,
+                            isPaid,
+                            start,
+                            end,
+                            publishedState,
+                            pageable);
+        }
+
+        if (!onlyAvailable && sort == null
+                && categoriesIds.isEmpty()
+                && isPaid != null
+                && end != null) {
+
+            return eventRepository
+                    .findAllByAnnotationContainingIgnoreCaseOrTitleContainingIgnoreCaseAndPaidIsAndDateBetweenAndStateIs(
+                            searchText,
+                            searchText,
+                            isPaid,
+                            start,
+                            end,
+                            publishedState,
+                            pageable);
+        }
+
+        if (!onlyAvailable && sort == null
+                && categoriesIds.isEmpty()
+                && isPaid == null
+                && end != null) {
+
+            return eventRepository
+                    .findAllByAnnotationContainingIgnoreCaseOrTitleContainingIgnoreCaseAndDateBetweenAndStateIs(
+                            searchText,
+                            searchText,
+                            start,
+                            end,
+                            publishedState,
+                            pageable);
+        }
+
+        if (!onlyAvailable && sort == null
+                && categoriesIds.isEmpty()
+                && isPaid == null
+                && end == null) {
+
+            return eventRepository
+                    .findAllByAnnotationContainingIgnoreCaseOrTitleContainingIgnoreCaseAndDateAfterAndStateIs(
+                            searchText,
+                            searchText,
+                            start,
+                            publishedState,
+                            pageable);
+        }
+
+        if (!onlyAvailable && sort == null
+                && !categoriesIds.isEmpty()
+                && isPaid == null
+                && end != null) {
+
+            return eventRepository
+                    .findAllByAnnotationContainingIgnoreCaseOrTitleContainingIgnoreCaseAndCategoryIdInAndDateBetweenAndStateIs(
+                            searchText,
+                            searchText,
+                            categoriesIds,
+                            start,
+                            end,
+                            publishedState,
+                            pageable);
+        }
+
+        if (!onlyAvailable && sort == null
+                && !categoriesIds.isEmpty()
+                && isPaid == null
+                && end == null) {
+
+            return eventRepository
+                    .findAllByAnnotationContainingIgnoreCaseOrTitleContainingIgnoreCaseAndCategoryIdInAndDateAfterAndStateIs(
+                            searchText,
+                            searchText,
+                            categoriesIds,
+                            start,
+                            publishedState,
+                            pageable);
+        }
+
+        if (!onlyAvailable && sort == null
+                && !categoriesIds.isEmpty()
+                && isPaid != null
+                && end == null) {
+
+            return eventRepository
+                    .findAllByAnnotationContainingIgnoreCaseOrTitleContainingIgnoreCaseAndCategoryIdInAndPaidIsAndDateAfterAndStateIs(
+                            searchText,
+                            searchText,
+                            categoriesIds,
+                            isPaid,
+                            start,
+                            publishedState,
+                            pageable);
         }
 
         if (onlyAvailable && sort == EventSort.EVENT_DATE) {
-            return eventRepository.findOnlyAvailableByMultipleParamsOrderByEventDate(
-                    lowerCaseText, categoriesIds, isPaid, rangeStart, rangeEnd, publishedState, pageable);
+
+            return eventRepository
+                    .findOnlyAvailableByMultipleParamsOrderByEventDate(
+                            searchText,
+                            categoriesIds,
+                            isPaid,
+                            start,
+                            end,
+                            publishedState,
+                            pageable);
         }
 
         if (onlyAvailable && sort == EventSort.VIEWS) {
-            return eventRepository.findOnlyAvailableByMultipleParametersOrderByViews(
-                    lowerCaseText, categoriesIds, isPaid, rangeStart, rangeEnd, publishedState, pageable);
+
+            return eventRepository
+                    .findOnlyAvailableByMultipleParamsOrderByViews(
+                            searchText,
+                            categoriesIds,
+                            isPaid,
+                            start,
+                            end,
+                            publishedState,
+                            pageable);
         }
+
+        if (onlyAvailable && sort == null) {
+
+            return eventRepository
+                    .findOnlyAvailableByMultipleParamsNotOrdered(
+                            searchText,
+                            categoriesIds,
+                            isPaid,
+                            start,
+                            end,
+                            publishedState,
+                            pageable);
+        }
+
 
         return Page.empty();
     }
@@ -341,5 +838,24 @@ public class EventService {
                     String.format("Field: eventDate. Error: должно содержать дату, которая еще не наступила. Value: %s",
                             eventDate));
         }
+    }
+
+    private PublicationState getEventPublicationState(String strState) {
+        if (strState.equals(
+                PublicationState.PENDING.name())) {
+            return PublicationState.PENDING;
+        }
+
+        if (strState.equals(
+                PublicationState.CANCELED.name())) {
+            return PublicationState.CANCELED;
+        }
+
+        if (strState.equals(
+                PublicationState.PUBLISHED.name())) {
+            return PublicationState.PUBLISHED;
+        }
+
+        throw new RequestInputException("Invalid publication state provided.");
     }
 }

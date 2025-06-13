@@ -20,7 +20,8 @@ public class CategoryPublicController {
     CategoryMapper categoryMapper;
 
     @GetMapping
-    public List<CategoryDto> findAll(@RequestParam int from, @RequestParam int size) {
+    public List<CategoryDto> findAll(@RequestParam(defaultValue = "0") int from,
+                                     @RequestParam(defaultValue = "10") int size) {
         return categoryMapper.toDto(
                 categoryService.findAll(from, size));
     }

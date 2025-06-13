@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -18,11 +19,18 @@ import java.util.List;
 public class StatisticsService {
     EventRepository eventRepository;
 
-    public void addView(Event event) {
-        event.setViews(
-                event.getViews() + 1);
+    Set<String> uniqueViews;
 
-        eventRepository.save(event);
+    public void addView(Event event, String ipAddress) {
+        String encoded = encode(ipAddress, event.getId());
+
+        if (!uniqueViews.contains(encoded)) {
+            event.setViews(
+                    event.getViews() + 1);
+
+            eventRepository.save(event);
+            uniqueViews.add(encoded);
+        }
     }
 
     public void addViewById(int eventId) {
@@ -36,11 +44,27 @@ public class StatisticsService {
         eventRepository.save(event);
     }
 
-    public void addView(Page<Event> events) {
+    public void addView(Page<Event> events, String ipAddress) {
         List<Event> updatedEvents = events.stream()
-                .peek(event -> event.setViews(event.getViews() + 1))
+                .filter(event -> {
+                    String encoded = encode(ipAddress, event.getId());
+
+                    if (!uniqueViews.contains(encoded)) {
+                        event.setViews(
+                                event.getViews() + 1);
+
+                        uniqueViews.add(encoded);
+                        return true;
+                    }
+
+                    return false;
+                })
                 .toList();
 
         eventRepository.saveAll(updatedEvents);
+    }
+
+    private String encode(String ip, int eventId) {
+        return String.format("ip:%s,event:%d", ip, eventId);
     }
 }

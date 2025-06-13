@@ -14,11 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-
-import static com.practice.afisha.util.DateTimeFormatConstants.getDefaultFormatter;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -37,17 +34,10 @@ public class EventAdminController {
                                                           @RequestParam(required = false) String rangeEnd,
                                                           @RequestParam(defaultValue = "0") int from,
                                                           @RequestParam(defaultValue = "10") int size) {
-        LocalDateTime rangeStartDate = LocalDateTime.parse(rangeStart, getDefaultFormatter());
-        LocalDateTime rangeEndDate = LocalDateTime.parse(rangeEnd, getDefaultFormatter());
-
-        List<PublicationState> convertedStates = states.stream()
-                .map(this::getEventPublicationState)
-                .distinct()
-                .toList();
 
         return eventMapper.toDto(
                 eventService.findAllByMultipleParametersAdminRequest(
-                        users, convertedStates, categories, rangeStartDate, rangeEndDate, from, size));
+                        users, states, categories, rangeStart, rangeEnd, from, size));
     }
 
     @PatchMapping("/{eventId}")
@@ -83,24 +73,5 @@ public class EventAdminController {
         }
 
         throw new RequestInputException("Invalid state action data.");
-    }
-
-    private PublicationState getEventPublicationState(String strState) {
-        if (strState.equals(
-                PublicationState.PENDING.name())) {
-            return PublicationState.PENDING;
-        }
-
-        if (strState.equals(
-                PublicationState.CANCELED.name())) {
-            return PublicationState.CANCELED;
-        }
-
-        if (strState.equals(
-                PublicationState.PUBLISHED.name())) {
-            return PublicationState.PUBLISHED;
-        }
-
-        throw new RequestInputException("Invalid publication state provided.");
     }
 }
