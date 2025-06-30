@@ -25,7 +25,7 @@ public class UserService {
         Pageable pageable = PageRequest.of(pageNumber, size);
 
         if (ids == null || ids.isEmpty()) {
-            return userRepository.findAllOrderBy(pageable);
+            return userRepository.findAllByOrderById(pageable);
         }
 
         return userRepository.findAllByIdIn(ids, pageable);

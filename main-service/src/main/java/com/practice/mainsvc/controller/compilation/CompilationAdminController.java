@@ -38,8 +38,6 @@ public class CompilationAdminController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteById(@PathVariable int compId) {
         compilationService.deleteById(compId);
-
-        System.out.println("delete used.");
     }
 
     @PatchMapping("/{compId}")
