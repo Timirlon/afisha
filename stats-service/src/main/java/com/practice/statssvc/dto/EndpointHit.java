@@ -8,7 +8,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EndpointHit {
     String app;
-    String url;
+    String uri;
     String ip;
     String timestamp;
 }

@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: afisha-stats
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/afisha_stats
+    username: postgres
+    password: 1234
+
+server:
+  port: 9090
