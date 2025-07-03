@@ -38,13 +38,15 @@ public class HitService {
             return hitRepository.findAllByCreatedInRangeAndUriIn(start, end, uris);
         }
 
-//        if (uris.length == 0 && unique) {
-//            return hitRepository.findAllByCreatedInRangeAndUniqueTrue(start, end);
-//        }
-//
-//        if (uris.length > 0 && unique) {
-//            return hitRepository.findAllByCreatedInRangeAndUriInAndUniqueTrue(start, end, uris);
-//        }
+        Collection<Integer> ids = hitRepository.findAllByDistinctIp();
+
+        if (uris.length == 0 && unique) {
+            return hitRepository.findAllByCreatedInRangeAndUniqueTrue(start, end, ids);
+        }
+
+        if (uris.length > 0 && unique) {
+            return hitRepository.findAllByCreatedInRangeAndUriInAndUniqueTrue(start, end, uris, ids);
+        }
 
         return List.of();
     }
