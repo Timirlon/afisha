@@ -1,6 +1,5 @@
 package com.practice.mainsvc.service;
 
-import com.practice.mainsvc.exception.NotFoundException;
 import com.practice.mainsvc.model.Event;
 import com.practice.mainsvc.repository.EventRepository;
 import lombok.AccessLevel;
@@ -9,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -19,7 +19,8 @@ import java.util.Set;
 public class StatisticsService {
     EventRepository eventRepository;
 
-    Set<String> uniqueViews;
+    Set<String> uniqueViews = new HashSet<>();
+
 
     public void addView(Event event, String ipAddress) {
         String encoded = encode(ipAddress, event.getId());
@@ -31,17 +32,6 @@ public class StatisticsService {
             eventRepository.save(event);
             uniqueViews.add(encoded);
         }
-    }
-
-    public void addViewById(int eventId) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException(
-                        String.format("Event with id: %d not found", eventId)));
-
-        event.setViews(
-                event.getViews() + 1);
-
-        eventRepository.save(event);
     }
 
     public void addView(Page<Event> events, String ipAddress) {
