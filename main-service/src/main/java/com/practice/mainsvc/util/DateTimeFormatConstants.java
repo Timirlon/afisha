@@ -9,15 +9,15 @@ import java.time.format.DateTimeFormatter;
 public class DateTimeFormatConstants {
     private static final String FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
-    public static DateTimeFormatter getDefaultFormatter() {
+    public static DateTimeFormatter getDefault() {
         return DateTimeFormatter.ofPattern(FORMAT_PATTERN);
     }
 
-    public static LocalDateTime parseToLocalDateTime(String str) {
-        return LocalDateTime.parse(str, getDefaultFormatter());
+    public static LocalDateTime parse(String str) {
+        return LocalDateTime.parse(str, getDefault());
     }
 
-    public static String formatToString(LocalDateTime dateTime) {
-        return dateTime.format(getDefaultFormatter());
+    public static String format(LocalDateTime dateTime) {
+        return dateTime.format(getDefault());
     }
 }

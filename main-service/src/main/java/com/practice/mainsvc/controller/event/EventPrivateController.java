@@ -1,5 +1,6 @@
 package com.practice.mainsvc.controller.event;
 
+import com.practice.mainsvc.client.StatisticsClient;
 import com.practice.mainsvc.dto.event.*;
 import com.practice.mainsvc.dto.request.EventRequestStatusUpdateRequest;
 import com.practice.mainsvc.dto.request.EventRequestStatusUpdateResult;
@@ -12,6 +13,7 @@ import com.practice.mainsvc.model.Event;
 import com.practice.mainsvc.service.EventService;
 import com.practice.mainsvc.service.RequestService;
 import com.practice.mainsvc.util.UserStateAction;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -33,58 +35,90 @@ public class EventPrivateController {
     RequestService requestService;
     RequestMapper requestMapper;
 
+    StatisticsClient statisticsClient;
+
     @GetMapping
     public List<EventShortDto> findAllByInitiatorId(@PathVariable int userId,
                                                     @RequestParam(defaultValue = "0") int from,
-                                                    @RequestParam(defaultValue = "10") int size) {
-        return eventMapper.toShortDto(
+                                                    @RequestParam(defaultValue = "10") int size,
+                                                    HttpServletRequest servletRequest) {
+        List<EventShortDto> result = eventMapper.toShortDto(
                 eventService.findAllByInitiatorId(userId, from, size));
+
+        statisticsClient.hit(String.format("/users/%d/events", userId), servletRequest);
+
+        return result;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto create(@RequestBody @Valid NewEventDto eventRequest,
-                               @PathVariable int userId) {
+                               @PathVariable int userId,
+                               HttpServletRequest servletRequest) {
         Event event = eventMapper.fromDto(eventRequest);
         int categoryId = eventRequest.getCategory();
 
-        return eventMapper.toDto(
+        EventFullDto result = eventMapper.toDto(
                 eventService.create(event, userId, categoryId));
+
+        statisticsClient.hit(String.format("/users/%d/events", userId), servletRequest);
+
+
+        return result;
     }
 
     @GetMapping("/{eventId}")
     public EventFullDto findById(@PathVariable int eventId,
-                                 @PathVariable int userId) {
+                                 @PathVariable int userId,
+                                 HttpServletRequest servletRequest) {
 
-        return eventMapper.toDto(
+        EventFullDto result = eventMapper.toDto(
                 eventService.findByIdPublicRequest(eventId, userId));
+
+        statisticsClient.hit(String.format("/users/%d/events/%d", userId, eventId), servletRequest);
+
+
+        return result;
     }
 
     @PatchMapping("/{eventId}")
     public EventFullDto updateById(@PathVariable int eventId,
                                    @RequestBody @Valid UpdateEventUserRequest updateRequest,
-                                   @PathVariable int userId) {
+                                   @PathVariable int userId,
+                                   HttpServletRequest servletRequest) {
         Event event = eventMapper.fromDto(updateRequest);
 
         Integer categoryId = updateRequest.getCategory();
         UserStateAction stateAction = getStateAction(updateRequest.getStateAction());
 
 
-        return eventMapper.toDto(
+        EventFullDto result = eventMapper.toDto(
                 eventService.updateByIdUserRequest(eventId, event, userId, categoryId, stateAction));
+
+        statisticsClient.hit(String.format("/users/%d/events/%d", userId, eventId), servletRequest);
+
+
+        return result;
     }
 
     @GetMapping("/{eventId}/requests")
     public List<ParticipationRequestDto> findAllByEventIdAndInitiatorId(@PathVariable int eventId,
-                                                                        @PathVariable int userId) {
-        return requestMapper.toDto(
+                                                                        @PathVariable int userId,
+                                                                        HttpServletRequest servletRequest) {
+        List<ParticipationRequestDto> result = requestMapper.toDto(
                 requestService.findAllByEventIdAndInitiatorId(eventId, userId));
+
+        statisticsClient.hit(String.format("/users/%d/events/%d/requests", userId, eventId), servletRequest);
+
+
+        return result;
     }
 
     @PatchMapping("/{eventId}/requests")
     public EventRequestStatusUpdateResult changeEventRequestStatus(@RequestBody EventRequestStatusUpdateRequest dto,
                                                                    @PathVariable int eventId,
-                                                                   @PathVariable int userId) {
+                                                                   @PathVariable int userId,
+                                                                   HttpServletRequest servletRequest) {
 
         List<Integer> requestIds = dto.getRequestIds();
         ConfirmationStatus status = getStatus(dto.getStatus());
@@ -95,6 +129,7 @@ public class EventPrivateController {
 
         eventService.updateConfirmedRequests(eventId, result.getConfirmedRequests().size());
 
+        statisticsClient.hit(String.format("/users/%d/events/%d/requests", userId, eventId), servletRequest);
 
         return result;
     }

@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
-import static com.practice.mainsvc.util.DateTimeFormatConstants.parseToLocalDateTime;
+import static com.practice.mainsvc.util.DateTimeFormatConstants.parse;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -182,11 +182,11 @@ public class EventService {
         LocalDateTime start = null;
         LocalDateTime end = null;
         if (rangeStart != null) {
-            start = parseToLocalDateTime(rangeStart);
+            start = parse(rangeStart);
         }
 
         if (rangeEnd != null) {
-            end = parseToLocalDateTime(rangeEnd);
+            end = parse(rangeEnd);
         }
 
 
@@ -408,8 +408,8 @@ public class EventService {
         if (rangeStartStr != null && rangeEndStr != null
                 && !rangeStartStr.isBlank() && !rangeEndStr.isBlank()) {
 
-            start = parseToLocalDateTime(rangeStartStr);
-            end = parseToLocalDateTime(rangeEndStr);
+            start = parse(rangeStartStr);
+            end = parse(rangeEndStr);
         } else {
             start = LocalDateTime.now();
             end = null;

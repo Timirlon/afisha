@@ -1,5 +1,6 @@
 package com.practice.mainsvc.controller.event;
 
+import com.practice.mainsvc.client.StatisticsClient;
 import com.practice.mainsvc.util.AdminStateAction;
 import com.practice.mainsvc.dto.event.EventFullDto;
 import com.practice.mainsvc.dto.event.UpdateEventAdminRequest;
@@ -7,6 +8,7 @@ import com.practice.mainsvc.exception.RequestInputException;
 import com.practice.mainsvc.mapper.EventMapper;
 import com.practice.mainsvc.model.Event;
 import com.practice.mainsvc.service.EventService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,8 @@ public class EventAdminController {
     EventService eventService;
     EventMapper eventMapper;
 
+    StatisticsClient statisticsClient;
+
     @GetMapping
     public List<EventFullDto> findAllByMultipleParameters(@RequestParam(required = false) Collection<Integer> users,
                                                           @RequestParam(required = false) Collection<String> states,
@@ -32,16 +36,24 @@ public class EventAdminController {
                                                           @RequestParam(required = false) String rangeStart,
                                                           @RequestParam(required = false) String rangeEnd,
                                                           @RequestParam(defaultValue = "0") int from,
-                                                          @RequestParam(defaultValue = "10") int size) {
+                                                          @RequestParam(defaultValue = "10") int size,
+                                                          HttpServletRequest servletRequest) {
 
-        return eventMapper.toDto(
+        List<EventFullDto> result = eventMapper.toDto(
                 eventService.findAllByMultipleParametersAdminRequest(
                         users, states, categories, rangeStart, rangeEnd, from, size));
+
+
+        statisticsClient.hit("/admin/events", servletRequest);
+
+
+        return result;
     }
 
     @PatchMapping("/{eventId}")
     public EventFullDto updateById(@PathVariable int eventId,
-                                   @RequestBody @Valid UpdateEventAdminRequest eventRequest) {
+                                   @RequestBody @Valid UpdateEventAdminRequest eventRequest,
+                                   HttpServletRequest servletRequest) {
 
         Event event = eventMapper.fromDto(eventRequest);
         int categoryId;
@@ -52,8 +64,13 @@ public class EventAdminController {
         }
         AdminStateAction stateAction = getStateAction(eventRequest.getStateAction());
 
-        return eventMapper.toDto(
+        EventFullDto result = eventMapper.toDto(
                 eventService.updateByIdAdminRequest(eventId, event, categoryId, stateAction));
+
+        statisticsClient.hit("/admin/events/" + eventId, servletRequest);
+
+
+        return result;
     }
 
     private AdminStateAction getStateAction(String strAction) {

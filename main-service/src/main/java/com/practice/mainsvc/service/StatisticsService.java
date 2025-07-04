@@ -2,6 +2,7 @@ package com.practice.mainsvc.service;
 
 import com.practice.mainsvc.model.Event;
 import com.practice.mainsvc.repository.EventRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static com.practice.mainsvc.util.RequestConstants.getClientIp;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -22,7 +25,9 @@ public class StatisticsService {
     Set<String> uniqueViews = new HashSet<>();
 
 
-    public void addView(Event event, String ipAddress) {
+    public void addView(Event event, HttpServletRequest servletRequest) {
+        String ipAddress = getClientIp(servletRequest);
+
         String encoded = encode(ipAddress, event.getId());
 
         if (!uniqueViews.contains(encoded)) {
@@ -34,7 +39,9 @@ public class StatisticsService {
         }
     }
 
-    public void addView(Page<Event> events, String ipAddress) {
+    public void addView(Page<Event> events, HttpServletRequest servletRequest) {
+        String ipAddress = getClientIp(servletRequest);
+
         List<Event> updatedEvents = events.stream()
                 .filter(event -> {
                     String encoded = encode(ipAddress, event.getId());

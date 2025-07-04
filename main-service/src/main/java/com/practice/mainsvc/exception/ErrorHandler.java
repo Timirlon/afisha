@@ -1,6 +1,6 @@
 package com.practice.mainsvc.exception;
 
-import static com.practice.mainsvc.util.DateTimeFormatConstants.getDefaultFormatter;
+import static com.practice.mainsvc.util.DateTimeFormatConstants.getDefault;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -58,7 +58,7 @@ public class ErrorHandler {
         apiError.setStatus(status.name());
         apiError.setReason(reason);
         apiError.setMessage(message);
-        apiError.setTimestamp(timestamp.format(getDefaultFormatter()));
+        apiError.setTimestamp(timestamp.format(getDefault()));
 
         return apiError;
     }

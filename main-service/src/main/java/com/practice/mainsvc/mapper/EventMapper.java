@@ -2,7 +2,7 @@ package com.practice.mainsvc.mapper;
 
 import com.practice.mainsvc.dto.event.*;
 import com.practice.mainsvc.model.Event;
-import static com.practice.mainsvc.util.DateTimeFormatConstants.getDefaultFormatter;
+import static com.practice.mainsvc.util.DateTimeFormatConstants.getDefault;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class EventMapper {
         event.setConfirmedRequests(0);
 
         event.setDate(
-                LocalDateTime.parse(eventDto.getEventDate(), getDefaultFormatter()));
+                LocalDateTime.parse(eventDto.getEventDate(), getDefault()));
 
         // Значения по умолчанию
         if (eventDto.getPaid() != null) {
@@ -74,7 +74,7 @@ public class EventMapper {
 
         if (eventDto.getEventDate() != null) {
             event.setDate(
-                    LocalDateTime.parse(eventDto.getEventDate(), getDefaultFormatter()));
+                    LocalDateTime.parse(eventDto.getEventDate(), getDefault()));
         }
 
 
@@ -98,7 +98,7 @@ public class EventMapper {
 
         if (eventDto.getEventDate() != null) {
             event.setDate(
-                    LocalDateTime.parse(eventDto.getEventDate(), getDefaultFormatter()));
+                    LocalDateTime.parse(eventDto.getEventDate(), getDefault()));
         }
 
 
@@ -124,14 +124,14 @@ public class EventMapper {
         eventDto.setLocationLon(event.getLocationLongitude());
 
         eventDto.setCreatedOn(
-                event.getCreated().format(getDefaultFormatter()));
+                event.getCreated().format(getDefault()));
 
         eventDto.setEventDate(
-                event.getDate().format(getDefaultFormatter()));
+                event.getDate().format(getDefault()));
 
         if (event.getPublished() != null) {
             eventDto.setPublishedOn(
-                    event.getPublished().format(getDefaultFormatter()));
+                    event.getPublished().format(getDefault()));
         }
 
         eventDto.setCategory(
@@ -161,7 +161,7 @@ public class EventMapper {
         shortDto.setViews(event.getViews());
 
         shortDto.setEventDate(
-                event.getDate().format(getDefaultFormatter()));
+                event.getDate().format(getDefault()));
 
         shortDto.setCategory(
                 categoryMapper.toDto(event.getCategory()));

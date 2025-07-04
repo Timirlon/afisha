@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.practice.mainsvc.util.DateTimeFormatConstants.formatToString;
+import static com.practice.mainsvc.util.DateTimeFormatConstants.format;
 
 @Component
 public class RequestMapper {
@@ -18,7 +18,7 @@ public class RequestMapper {
         ParticipationRequestDto dto = new ParticipationRequestDto();
 
         dto.setCreated(
-                formatToString(request.getCreated()));
+                format(request.getCreated()));
 
         dto.setEvent(request.getEvent().getId());
         dto.setId(request.getId());

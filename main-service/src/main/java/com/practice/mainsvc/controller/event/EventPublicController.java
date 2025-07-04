@@ -1,5 +1,6 @@
 package com.practice.mainsvc.controller.event;
 
+import com.practice.mainsvc.client.StatisticsClient;
 import com.practice.mainsvc.dto.event.EventFullDto;
 import com.practice.mainsvc.dto.event.EventShortDto;
 import com.practice.mainsvc.exception.RequestInputException;
@@ -18,8 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.practice.mainsvc.util.DateTimeFormatConstants.getDefaultFormatter;
-import static com.practice.mainsvc.util.RequestConstants.getClientIp;
+import static com.practice.mainsvc.util.DateTimeFormatConstants.getDefault;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -32,6 +32,7 @@ public class EventPublicController {
 
     StatisticsService statisticsService;
 
+    StatisticsClient statisticsClient;
 
     @GetMapping
     public List<EventShortDto> findAll(@RequestParam(required = false) String text,
@@ -43,25 +44,28 @@ public class EventPublicController {
                                        @RequestParam(required = false) String sort,
                                        @RequestParam(defaultValue = "0") int from,
                                        @RequestParam(defaultValue = "10") int size,
-                                       HttpServletRequest request) {
+                                       HttpServletRequest servletRequest) {
 
         EventSort sortMethod = getSortFromString(sort);
 
         Page<Event> result = eventService.findAllByMultipleParametersPublicRequest(
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sortMethod, from, size);
 
-        String ipAddress = getClientIp(request);
-        statisticsService.addView(result, ipAddress);
+
+        statisticsService.addView(result, servletRequest);
+
+        statisticsClient.hit("/events", servletRequest);
 
         return eventMapper.toShortDto(result);
     }
 
     @GetMapping("/{id}")
-    public EventFullDto findById(@PathVariable int id, HttpServletRequest request) {
+    public EventFullDto findById(@PathVariable int id, HttpServletRequest servletRequest) {
         Event result = eventService.findByIdPublicRequest(id);
 
-        String ipAddress = getClientIp(request);
-        statisticsService.addView(result, ipAddress);
+        statisticsService.addView(result, servletRequest);
+
+        statisticsClient.hit(String.format("/events/%d", id), servletRequest);
 
         return eventMapper.toDto(result);
     }
@@ -82,9 +86,5 @@ public class EventPublicController {
         }
 
         throw new RequestInputException("Invalid sorting method provided.");
-    }
-
-    private LocalDateTime getDateTimeFromString(String strDate) {
-        return LocalDateTime.parse(strDate, getDefaultFormatter());
     }
 }
