@@ -1,0 +1,42 @@
+services:
+  main-service:
+    build: /main-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - stats-service
+      - postgres-main-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - STATS_HOST=stats-service
+      - DB_HOST=postgres-main-service
+      - DB_NAME=afisha
+      - DB_USER=postgres
+      - DB_PASSWORD=1234
+
+  stats-service:
+    build: /stats-service
+    ports:
+      - "9090:9090"
+    depends_on:
+      - postgres-stats-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_HOST=postgres-stats-service
+      - DB_NAME=afisha_stats
+      - DB_USER=postgres
+      - DB_PASSWORD=1234
+
+  postgres-main-service:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=afisha
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+
+  postgres-stats-service:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=afisha_stats
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234

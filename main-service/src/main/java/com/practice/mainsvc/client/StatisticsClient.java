@@ -1,7 +1,5 @@
 package com.practice.mainsvc.client;
 
-import com.practice.statssvc.dto.EndpointHit;
-
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;

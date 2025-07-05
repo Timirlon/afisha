@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: afisha-stats
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    generate-ddl: true
+
+server:
+  port: 9090
