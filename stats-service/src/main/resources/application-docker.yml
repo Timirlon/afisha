@@ -7,8 +7,5 @@ spring:
     username: ${DB_USER}
     password: ${DB_PASSWORD}
 
-  jpa:
-    generate-ddl: true
-
 server:
   port: 9090
