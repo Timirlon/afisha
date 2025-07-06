@@ -1,7 +1,6 @@
 package com.practice.mainsvc.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -19,7 +18,6 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
 
-    @NotBlank(message = "Название категории не может быть пустым!")
     String name;
 
     @OneToMany(mappedBy = "category")

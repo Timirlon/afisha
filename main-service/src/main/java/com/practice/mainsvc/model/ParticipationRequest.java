@@ -19,6 +19,7 @@ public class ParticipationRequest {
 
     LocalDateTime created;
 
+    @Enumerated(value = EnumType.STRING)
     ConfirmationStatus status;
 
     @ManyToOne
