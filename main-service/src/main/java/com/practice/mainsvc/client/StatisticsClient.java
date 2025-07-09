@@ -53,7 +53,7 @@ public class StatisticsClient {
 
     public ResponseEntity<List<ViewStats>> view(String start,
                                                 String end,
-                                                List<String> uris,
+                                                String[] uris,
                                                 boolean unique) {
 
         return restTemplate.exchange(
@@ -68,14 +68,13 @@ public class StatisticsClient {
     }
 
     public void setViewsToEvent(Event event) {
-        List<String> uris = List.of(String.format("/events/%d", event.getId()));
+        String[] uris = {String.format("/events/%d", event.getId())};
 
         List<ViewStats> response = view(
                 format(LocalDateTime.now().minusYears(1)),
                 format(LocalDateTime.now()),
                 uris,
                 true).getBody();
-
 
         if (response == null || response.isEmpty()) {
             return;
@@ -85,9 +84,9 @@ public class StatisticsClient {
     }
 
     public void setViewsToEvent(Page<Event> events) {
-        List<String> uris = events.stream()
+        String[] uris = events.stream()
                 .map(event -> String.format("/events/%d", event.getId()))
-                .toList();
+                .toArray(String[]::new);
 
         List<ViewStats> response = view(
                 format(LocalDateTime.now().minusYears(1)),

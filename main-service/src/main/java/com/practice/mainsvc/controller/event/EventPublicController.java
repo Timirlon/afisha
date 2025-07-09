@@ -7,7 +7,6 @@ import com.practice.mainsvc.exception.RequestInputException;
 import com.practice.mainsvc.mapper.EventMapper;
 import com.practice.mainsvc.model.Event;
 import com.practice.mainsvc.service.EventService;
-import com.practice.mainsvc.service.StatisticsService;
 import com.practice.mainsvc.util.EventSort;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
@@ -16,10 +15,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
-
-import static com.practice.mainsvc.util.DateTimeFormatConstants.getDefault;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -29,8 +25,6 @@ import static com.practice.mainsvc.util.DateTimeFormatConstants.getDefault;
 public class EventPublicController {
     EventService eventService;
     EventMapper eventMapper;
-
-    StatisticsService statisticsService;
 
     StatisticsClient statisticsClient;
 
@@ -52,8 +46,6 @@ public class EventPublicController {
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sortMethod, from, size);
 
 
-        statisticsService.addView(result, servletRequest);
-
         statisticsClient.hit("/events", servletRequest);
         statisticsClient.setViewsToEvent(result);
 
@@ -63,8 +55,6 @@ public class EventPublicController {
     @GetMapping("/{id}")
     public EventFullDto findById(@PathVariable int id, HttpServletRequest servletRequest) {
         Event result = eventService.findByIdPublicRequest(id);
-
-        statisticsService.addView(result, servletRequest);
 
         statisticsClient.hit(String.format("/events/%d", id), servletRequest);
         statisticsClient.setViewsToEvent(result);

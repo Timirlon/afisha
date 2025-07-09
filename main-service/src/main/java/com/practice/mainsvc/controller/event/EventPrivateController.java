@@ -62,7 +62,6 @@ public class EventPrivateController {
         Event result = eventService.create(event, userId, categoryId);
 
         statisticsClient.hit(String.format("/users/%d/events", userId), servletRequest);
-        event.setViews(0);
 
         return eventMapper.toDto(result);
     }

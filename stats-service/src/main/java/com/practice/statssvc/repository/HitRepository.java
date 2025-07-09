@@ -62,7 +62,7 @@ public interface HitRepository extends JpaRepository<Hit, Integer> {
                                                                        String[] uris,
                                                                        Collection<Integer> ids);
 
-    @Query(value = "SELECT DISTINCT ON (h.uri, h.ip) h.id FROM hits h",
+    @Query(value = "SELECT DISTINCT ON (h.app, h.uri, h.ip) h.id FROM hits h",
             nativeQuery = true)
     Collection<Integer> findAllByDistinctIp();
 }
