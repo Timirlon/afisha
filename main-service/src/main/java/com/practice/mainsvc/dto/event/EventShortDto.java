@@ -25,5 +25,5 @@ public class EventShortDto {
 
     String title;
 
-    int views;
+    long views;
 }

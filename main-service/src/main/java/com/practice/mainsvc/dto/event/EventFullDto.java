@@ -39,7 +39,7 @@ public class EventFullDto {
 
     String title;
 
-    int views;
+    long views;
 
 
     public void setLocationLat(Double latValue) {

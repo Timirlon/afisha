@@ -18,6 +18,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,12 +43,12 @@ public class EventPrivateController {
                                                     @RequestParam(defaultValue = "0") int from,
                                                     @RequestParam(defaultValue = "10") int size,
                                                     HttpServletRequest servletRequest) {
-        List<EventShortDto> result = eventMapper.toShortDto(
-                eventService.findAllByInitiatorId(userId, from, size));
+        Page<Event> result = eventService.findAllByInitiatorId(userId, from, size);
 
         statisticsClient.hit(String.format("/users/%d/events", userId), servletRequest);
+        statisticsClient.setViewsToEvent(result);
 
-        return result;
+        return eventMapper.toShortDto(result);
     }
 
     @PostMapping
@@ -58,13 +59,12 @@ public class EventPrivateController {
         Event event = eventMapper.fromDto(eventRequest);
         int categoryId = eventRequest.getCategory();
 
-        EventFullDto result = eventMapper.toDto(
-                eventService.create(event, userId, categoryId));
+        Event result = eventService.create(event, userId, categoryId);
 
         statisticsClient.hit(String.format("/users/%d/events", userId), servletRequest);
+        event.setViews(0);
 
-
-        return result;
+        return eventMapper.toDto(result);
     }
 
     @GetMapping("/{eventId}")
@@ -72,13 +72,12 @@ public class EventPrivateController {
                                  @PathVariable int userId,
                                  HttpServletRequest servletRequest) {
 
-        EventFullDto result = eventMapper.toDto(
-                eventService.findByIdPublicRequest(eventId, userId));
+        Event result = eventService.findByIdPublicRequest(eventId, userId);
 
         statisticsClient.hit(String.format("/users/%d/events/%d", userId, eventId), servletRequest);
+        statisticsClient.setViewsToEvent(result);
 
-
-        return result;
+        return eventMapper.toDto(result);
     }
 
     @PatchMapping("/{eventId}")
@@ -92,13 +91,13 @@ public class EventPrivateController {
         UserStateAction stateAction = getStateAction(updateRequest.getStateAction());
 
 
-        EventFullDto result = eventMapper.toDto(
-                eventService.updateByIdUserRequest(eventId, event, userId, categoryId, stateAction));
+        Event result = eventService.updateByIdUserRequest(
+                eventId, event, userId, categoryId, stateAction);
 
         statisticsClient.hit(String.format("/users/%d/events/%d", userId, eventId), servletRequest);
+        statisticsClient.setViewsToEvent(result);
 
-
-        return result;
+        return eventMapper.toDto(result);
     }
 
     @GetMapping("/{eventId}/requests")

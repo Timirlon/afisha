@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -39,15 +40,14 @@ public class EventAdminController {
                                                           @RequestParam(defaultValue = "10") int size,
                                                           HttpServletRequest servletRequest) {
 
-        List<EventFullDto> result = eventMapper.toDto(
-                eventService.findAllByMultipleParametersAdminRequest(
-                        users, states, categories, rangeStart, rangeEnd, from, size));
+        Page<Event> result = eventService.findAllByMultipleParametersAdminRequest(
+                        users, states, categories, rangeStart, rangeEnd, from, size);
 
 
         statisticsClient.hit("/admin/events", servletRequest);
+        statisticsClient.setViewsToEvent(result);
 
-
-        return result;
+        return eventMapper.toDto(result);
     }
 
     @PatchMapping("/{eventId}")
@@ -64,13 +64,14 @@ public class EventAdminController {
         }
         AdminStateAction stateAction = getStateAction(eventRequest.getStateAction());
 
-        EventFullDto result = eventMapper.toDto(
-                eventService.updateByIdAdminRequest(eventId, event, categoryId, stateAction));
+        Event result = eventService.updateByIdAdminRequest(
+                eventId, event, categoryId, stateAction);
+
 
         statisticsClient.hit("/admin/events/" + eventId, servletRequest);
+        statisticsClient.setViewsToEvent(result);
 
-
-        return result;
+        return eventMapper.toDto(result);
     }
 
     private AdminStateAction getStateAction(String strAction) {

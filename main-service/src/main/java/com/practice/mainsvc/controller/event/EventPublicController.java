@@ -55,6 +55,7 @@ public class EventPublicController {
         statisticsService.addView(result, servletRequest);
 
         statisticsClient.hit("/events", servletRequest);
+        statisticsClient.setViewsToEvent(result);
 
         return eventMapper.toShortDto(result);
     }
@@ -66,6 +67,7 @@ public class EventPublicController {
         statisticsService.addView(result, servletRequest);
 
         statisticsClient.hit(String.format("/events/%d", id), servletRequest);
+        statisticsClient.setViewsToEvent(result);
 
         return eventMapper.toDto(result);
     }

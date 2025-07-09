@@ -210,7 +210,6 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
         AND (:rangeEnd = null OR e.date <= :rangeEnd)
         AND e.confirmedRequests < e.participantLimit
         AND e.state = :state
-    ORDER BY e.views
     """)
     Page<Event> findOnlyAvailableByMultipleParamsOrderByViews(String text,
                                                               Collection<Integer> categoriesIds,

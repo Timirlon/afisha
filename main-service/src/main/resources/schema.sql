@@ -25,7 +25,6 @@ CREATE TABLE IF NOT EXISTS events (
     initiator_id INT REFERENCES users NOT NULL,
     created TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     published TIMESTAMP WITHOUT TIME ZONE,
-    views INT NOT NULL,
     confirmed_requests INT NOT NULL
 );
 

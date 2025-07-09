@@ -54,8 +54,6 @@ public class Event {
 
     LocalDateTime published;
 
-    Integer views;
-
     @Column(name = "confirmed_requests")
     Integer confirmedRequests;
 
@@ -64,4 +62,7 @@ public class Event {
 
     @ManyToMany
     final List<Compilation> compilations = new ArrayList<>();
+
+    @Transient
+    long views;
 }

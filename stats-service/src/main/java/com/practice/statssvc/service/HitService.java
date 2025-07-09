@@ -40,7 +40,8 @@ public class HitService {
 
         Collection<Integer> ids = hitRepository.findAllByDistinctIp();
 
-        if (uris.length == 0 && unique) {
+        if ((uris == null || uris.length == 0)
+                && unique) {
             return hitRepository.findAllByCreatedInRangeAndUniqueTrue(start, end, ids);
         }
 

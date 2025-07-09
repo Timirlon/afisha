@@ -29,7 +29,6 @@ public class EventMapper {
         event.setLocationLatitude(eventDto.getLocation().getLat());
         event.setLocationLongitude(eventDto.getLocation().getLon());
         event.setTitle(eventDto.getTitle());
-        event.setViews(0);
         event.setConfirmedRequests(0);
 
         event.setDate(
