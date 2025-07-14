@@ -6,6 +6,9 @@ spring:
     url: jdbc:postgresql://localhost:5432/afisha
     username: postgres
     password: 1234
+  jpa:
+    show-sql: true
+
 
 server:
   port: 8080

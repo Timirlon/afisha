@@ -1,6 +1,7 @@
 package com.practice.mainsvc.repository;
 
 import com.practice.mainsvc.model.Comment;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,9 +12,9 @@ import java.util.Optional;
 
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
     // поиск комментов
-    Page<Comment> findAllByEvent_IdAndHidden(int eventId, Boolean isHidden, Pageable pageable);
+    Page<Comment> findAllByEvent_IdAndHiddenAndParentIsNull(int eventId, Boolean isHidden, Pageable pageable);
 
-    Page<Comment> findAllByEvent_Id(int eventId, Pageable pageable);
+    Page<Comment> findAllByEvent_IdAndParentIsNull(int eventId, Pageable pageable);
 
     // поиск ответов (подкомменты)
     Page<Comment> findAllByParent_IdAndHidden(int parentId, Boolean isHidden, Pageable pageable);
@@ -23,29 +24,30 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
     // поиск комментов с ответами
     @Query("""
     SELECT c FROM Comment c
-    JOIN FETCH c.subcomments
-    JOIN FETCH c.parent
+    LEFT JOIN FETCH c.subcomments
+    LEFT JOIN FETCH c.parent
     WHERE c.id = :id
     """)
     Optional<Comment> findByIdWithAllReplies(int id);
 
     @Query("""
     SELECT c FROM Comment c
-    JOIN FETCH c.subcomments s
-    JOIN FETCH c.parent
+    LEFT JOIN FETCH c.subcomments s
+    LEFT JOIN FETCH c.parent
     WHERE c.id = :id
-    AND s.hidden IS FALSE
+    AND c.hidden IS FALSE
     """)
     Optional<Comment> findByIdWithoutHiddenReplies(int id);
 
     @Query("""
     SELECT c FROM Comment c
-    JOIN FETCH c.parent
+    LEFT JOIN FETCH c.parent
     WHERE c.id = :id
     """)
     Optional<Comment> findByIdWithParent(int id);
 
 
+    @Transactional
     @Modifying
     @Query("""
     DELETE FROM Comment c

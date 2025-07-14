@@ -8,6 +8,7 @@ import com.practice.mainsvc.model.User;
 import com.practice.mainsvc.repository.CommentRepository;
 import com.practice.mainsvc.repository.EventRepository;
 import com.practice.mainsvc.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -35,10 +36,10 @@ public class CommentService {
         Pageable pageable = PageRequest.of(page, size);
 
         if (showHidden) {
-            return commentRepository.findAllByEvent_Id(eventId, pageable);
+            return commentRepository.findAllByEvent_IdAndParentIsNull(eventId, pageable);
         }
 
-        return commentRepository.findAllByEvent_IdAndHidden(eventId, false, pageable);
+        return commentRepository.findAllByEvent_IdAndHiddenAndParentIsNull(eventId, false, pageable);
     }
 
     public Comment findByIdWithRepliesAndParent(int commentId, boolean showHidden) {
@@ -70,6 +71,10 @@ public class CommentService {
 
         if (parentId != null) {
             Comment parent = findCommentWithParent(parentId);
+
+            if (parent.getEvent().getId() != eventId) {
+                throw new RequestInputException("Reply must be commented to the same event as parent!");
+            }
 
             if (parent.getParent() != null) {
                 comment.setParent(parent.getParent());
@@ -109,6 +114,7 @@ public class CommentService {
 
         return foundComment;
     }
+
 
     public void deleteByIdPrivateRequest(int commentId, int userId) {
         findUserById(userId);

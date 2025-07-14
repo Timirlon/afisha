@@ -22,5 +22,6 @@ public class CommentFullDto extends CommentShortDto {
         this.setText(commentShortDto.getText());
         this.setEvent(commentShortDto.getEvent());
         this.setCreated(commentShortDto.getCreated());
+        this.setUpdated(commentShortDto.getUpdated());
     }
 }
