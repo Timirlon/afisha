@@ -40,4 +40,7 @@ public class Comment {
 
     @OneToMany(mappedBy = "parent")
     final List<Comment> subcomments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "comment")
+    final List<CommentReport> reportsReceived = new ArrayList<>();
 }

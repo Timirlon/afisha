@@ -8,7 +8,6 @@ import com.practice.mainsvc.model.User;
 import com.practice.mainsvc.repository.CommentRepository;
 import com.practice.mainsvc.repository.EventRepository;
 import com.practice.mainsvc.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -36,10 +35,10 @@ public class CommentService {
         Pageable pageable = PageRequest.of(page, size);
 
         if (showHidden) {
-            return commentRepository.findAllByEvent_IdAndParentIsNull(eventId, pageable);
+            return commentRepository.findAllByEvent_IdAndParentIsNullOrderByCreatedAtDesc(eventId, pageable);
         }
 
-        return commentRepository.findAllByEvent_IdAndHiddenAndParentIsNull(eventId, false, pageable);
+        return commentRepository.findAllByEvent_IdAndHiddenAndParentIsNullOrderByCreatedAtDesc(eventId, false, pageable);
     }
 
     public Comment findByIdWithRepliesAndParent(int commentId, boolean showHidden) {
@@ -60,10 +59,10 @@ public class CommentService {
         Pageable pageable = PageRequest.of(page, size);
 
         if (showHidden) {
-            return commentRepository.findAllByParent_Id(parentId, pageable);
+            return commentRepository.findAllByParent_IdOrderByCreatedAt(parentId, pageable);
         }
 
-        return commentRepository.findAllByParent_IdAndHidden(parentId, false, pageable);
+        return commentRepository.findAllByParent_IdAndHiddenOrderByCreatedAt(parentId, false, pageable);
     }
 
     public Comment createNew(Comment comment, Integer parentId, Integer userId, Integer eventId) {

@@ -3,9 +3,14 @@ package com.practice.mainsvc.controller.comment;
 import com.practice.mainsvc.client.StatisticsClient;
 import com.practice.mainsvc.dto.comment.CommentFullDto;
 import com.practice.mainsvc.dto.comment.CommentRequestDto;
+import com.practice.mainsvc.dto.report.CommentReportDto;
+import com.practice.mainsvc.dto.report.NewCommentReportDto;
 import com.practice.mainsvc.mapper.CommentMapper;
+import com.practice.mainsvc.mapper.ReportMapper;
 import com.practice.mainsvc.model.Comment;
+import com.practice.mainsvc.model.CommentReport;
 import com.practice.mainsvc.service.CommentService;
+import com.practice.mainsvc.service.ReportService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -24,6 +29,9 @@ public class CommentPrivateController {
     CommentMapper commentMapper;
 
     StatisticsClient statisticsClient;
+
+    ReportService reportService;
+    ReportMapper reportMapper;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -72,5 +80,23 @@ public class CommentPrivateController {
         statisticsClient.hit(
                 String.format("/users/%d/comments/%d", userId, commentId),
                 servletRequest);
+    }
+
+    @PostMapping("/{commentId}/report")
+    @ResponseStatus(HttpStatus.CREATED)
+    public CommentReportDto createNewReport(@RequestBody @Valid NewCommentReportDto reportDto,
+                                            @PathVariable int commentId,
+                                            @PathVariable int userId,
+                                            HttpServletRequest servletRequest) {
+        CommentReport report = reportMapper.fromDto(reportDto);
+
+        CommentReport result = reportService.createNew(report, commentId, userId);
+
+        statisticsClient.hit(
+                String.format("/users/%d/comments/%d/report", userId, commentId),
+                servletRequest);
+
+
+        return reportMapper.toDto(result);
     }
 }

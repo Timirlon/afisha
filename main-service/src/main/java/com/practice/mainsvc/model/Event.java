@@ -65,4 +65,7 @@ public class Event {
 
     @Transient
     long views;
+
+    @OneToMany(mappedBy = "event")
+    final List<Comment> comments = new ArrayList<>();
 }

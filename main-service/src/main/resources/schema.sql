@@ -59,3 +59,13 @@ CREATE TABLE IF NOT EXISTS comments (
     parent_id INT REFERENCES comments,
     updated_at TIMESTAMP WITHOUT TIME ZONE
 );
+
+CREATE TABLE IF NOT EXISTS comment_reports (
+    id SERIAL PRIMARY KEY,
+    reason VARCHAR(2000) NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    comment_id INT REFERENCES comments NOT NULL,
+    reporter_id INT REFERENCES users NOT NULL,
+    UNIQUE (reporter_id, comment_id),
+    state VARCHAR(30) NOT NULL
+)

@@ -12,14 +12,14 @@ import java.util.Optional;
 
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
     // поиск комментов
-    Page<Comment> findAllByEvent_IdAndHiddenAndParentIsNull(int eventId, Boolean isHidden, Pageable pageable);
+    Page<Comment> findAllByEvent_IdAndHiddenAndParentIsNullOrderByCreatedAtDesc(int eventId, Boolean isHidden, Pageable pageable);
 
-    Page<Comment> findAllByEvent_IdAndParentIsNull(int eventId, Pageable pageable);
+    Page<Comment> findAllByEvent_IdAndParentIsNullOrderByCreatedAtDesc(int eventId, Pageable pageable);
 
     // поиск ответов (подкомменты)
-    Page<Comment> findAllByParent_IdAndHidden(int parentId, Boolean isHidden, Pageable pageable);
+    Page<Comment> findAllByParent_IdAndHiddenOrderByCreatedAt(int parentId, Boolean isHidden, Pageable pageable);
 
-    Page<Comment> findAllByParent_Id(int parentId, Pageable pageable);
+    Page<Comment> findAllByParent_IdOrderByCreatedAt(int parentId, Pageable pageable);
 
     // поиск комментов с ответами
     @Query("""
