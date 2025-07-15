@@ -47,4 +47,25 @@ CREATE TABLE IF NOT EXISTS events_compilations (
     event_id INT REFERENCES events,
     compilation_id INT REFERENCES compilations,
     PRIMARY KEY (event_id, compilation_id)
+);
+
+CREATE TABLE IF NOT EXISTS comments (
+    id SERIAL PRIMARY KEY,
+    text VARCHAR(3000) NOT NULL,
+    event_id INT REFERENCES events NOT NULL,
+    author_id INT REFERENCES users NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    hidden BOOLEAN NOT NULL,
+    parent_id INT REFERENCES comments,
+    updated_at TIMESTAMP WITHOUT TIME ZONE
+);
+
+CREATE TABLE IF NOT EXISTS comment_reports (
+    id SERIAL PRIMARY KEY,
+    reason VARCHAR(2000) NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    comment_id INT REFERENCES comments NOT NULL,
+    reporter_id INT REFERENCES users NOT NULL,
+    UNIQUE (reporter_id, comment_id),
+    state VARCHAR(30) NOT NULL
 )

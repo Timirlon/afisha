@@ -27,4 +27,10 @@ public class User {
 
     @OneToMany(mappedBy = "requester")
     final List<ParticipationRequest> requests = new ArrayList<>();
+
+    @OneToMany(mappedBy = "author")
+    final List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "reporter")
+    final List<CommentReport> reports = new ArrayList<>();
 }
