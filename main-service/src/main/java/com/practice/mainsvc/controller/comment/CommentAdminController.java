@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -91,10 +92,15 @@ public class CommentAdminController {
     }
 
     @PatchMapping("/reports")
-    public List<CommentReportDto> respondToReport(@RequestBody RespondToReportRequest request) {
+    public List<CommentReportDto> respondToReport(@RequestBody RespondToReportRequest request,
+                                                  HttpServletRequest servletRequest) {
         ReportAction action = getActionFromStr(request.getAction());
 
-        List<CommentReport> result = reportService.respond(request.getReports(), action);
+        Collection<CommentReport> result = reportService.respond(request.getReports(), action);
+
+        statisticsClient.hit(
+                "/admin/comments/reports",
+                servletRequest);
 
         return reportMapper.toDto(result);
     }
