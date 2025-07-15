@@ -2,7 +2,6 @@ package com.practice.mainsvc.mapper;
 
 import com.practice.mainsvc.dto.report.CommentReportDto;
 import com.practice.mainsvc.dto.report.NewCommentReportDto;
-import com.practice.mainsvc.model.Comment;
 import com.practice.mainsvc.model.CommentReport;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +9,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.List;
 
 import static com.practice.mainsvc.util.DateTimeFormatConstants.format;
@@ -46,6 +46,12 @@ public class ReportMapper {
     }
 
     public List<CommentReportDto> toDto(Page<CommentReport> reports) {
+        return reports.stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    public List<CommentReportDto> toDto(Collection<CommentReport> reports) {
         return reports.stream()
                 .map(this::toDto)
                 .toList();

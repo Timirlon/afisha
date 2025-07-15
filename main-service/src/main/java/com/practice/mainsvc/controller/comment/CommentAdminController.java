@@ -3,6 +3,8 @@ package com.practice.mainsvc.controller.comment;
 import com.practice.mainsvc.client.StatisticsClient;
 import com.practice.mainsvc.dto.comment.CommentFullDto;
 import com.practice.mainsvc.dto.report.CommentReportDto;
+import com.practice.mainsvc.dto.report.RespondToReportRequest;
+import com.practice.mainsvc.exception.RequestInputException;
 import com.practice.mainsvc.mapper.CommentMapper;
 import com.practice.mainsvc.mapper.ReportMapper;
 import com.practice.mainsvc.model.Comment;
@@ -59,12 +61,12 @@ public class CommentAdminController {
     }
 
     @GetMapping("/reports")
-    public List<CommentReportDto> findReports(@RequestParam(defaultValue = "PENDING") String state,
+    public List<CommentReportDto> findReports(@RequestParam(defaultValue = "PENDING") String sort,
                                               @RequestParam(defaultValue = "0") int from,
                                               @RequestParam(defaultValue = "10") int size,
                                               HttpServletRequest servletRequest) {
-
-        Page<CommentReport> result = reportService.findAll(state, from, size);
+        ReportSort sortMethod = getStateFromStr(sort);
+        Page<CommentReport> result = reportService.findAll(sortMethod, from, size);
 
         statisticsClient.hit(
                 "/admin/comments/reports",
@@ -86,5 +88,50 @@ public class CommentAdminController {
                 servletRequest);
 
         return reportMapper.toDto(result);
+    }
+
+    @PatchMapping("/reports")
+    public List<CommentReportDto> respondToReport(@RequestBody RespondToReportRequest request) {
+        ReportAction action = getActionFromStr(request.getAction());
+
+        List<CommentReport> result = reportService.respond(request.getReports(), action);
+
+        return reportMapper.toDto(result);
+    }
+
+    private ReportAction getActionFromStr(String str) {
+        if (str.equalsIgnoreCase(ReportAction.HIDE.name())) {
+            return ReportAction.HIDE;
+        }
+
+        if (str.equalsIgnoreCase(ReportAction.DELETE.name())) {
+            return ReportAction.DELETE;
+        }
+
+        if (str.equalsIgnoreCase(ReportAction.REJECT.name())) {
+            return ReportAction.REJECT;
+        }
+
+        throw new RequestInputException("Invalid state action method provided.");
+    }
+
+    private ReportSort getStateFromStr(String str) {
+        if (str.equalsIgnoreCase(ReportSort.PENDING.name())) {
+            return ReportSort.PENDING;
+        }
+
+        if (str.equalsIgnoreCase(ReportSort.ALL.name())) {
+            return ReportSort.ALL;
+        }
+
+        if (str.equalsIgnoreCase(ReportSort.APPROVED.name())) {
+            return ReportSort.APPROVED;
+        }
+
+        if (str.equalsIgnoreCase(ReportSort.REJECTED.name())) {
+            return ReportSort.REJECTED;
+        }
+
+        throw new RequestInputException("Invalid sort method provided.");
     }
 }
