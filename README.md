@@ -1,4 +1,7 @@
 # Afisha
+## Краткое описание
+В рамках третьего этапа проекта, реализовал функциональность комментариев. Пользователи могут делиться комментариями на любое опубликованное событие, редактировать и удалять свои комментарии, а также отвечать на уже существующие комментарии. Админы имеют возможность удалять и скрывать комментарии. Для упрощения модерации комментариев также реализована возможность для пользователей оставлять жалобу на комментарий другого пользователя, которую позже смогут рассмотреть модераторы.
+
 ## Примеры эндпоинтов для функционала комментариев
 - **Публичные эндпоинты**
   - `GET: /comments` - Получение списка комментариев к указанному событию
@@ -214,7 +217,7 @@
     
       Метод: `CommentPrivateController.updateById()`  
       Ответ: Объект `CommentFullDto` с обновлённой информацией  
-      Пример ответа:
+      Пример тела ответа:
     
       ```json
       {
@@ -277,7 +280,7 @@
     
       Метод: `CommentPrivateController.createNewReport()`  
       Ответ: объект `CommentReportDto`  
-      Пример ответа:
+      Пример тела ответа:
     
       ```json
       {
@@ -298,7 +301,7 @@
 
 - **Админские эндпоинты**
 
-  - `PATCH: /admin/comments/{commentId}` — Обновить видимость комментария (HIDDEN или VISIBLE)
+  - `PATCH: /admin/comments/{commentId}` — Обновление видимости комментария (меняет значение аттрибута hidden на true или false)
 
     Параметры пути:
 
@@ -313,10 +316,25 @@
     | `visibility` | `string` | ✅          | Изменение видимости комментария (`HIDE` / `UNHIDE`)  |
 
     Метод: `CommentAdminController.updateVisibility()`  
-    Ответ: Объект `CommentFullDto` с обновлённой видимостью
+    Пример тела ответа: Объект `CommentFullDto`:
 
+    ```json
+      {
+          "id": 7,
+          "text": "Ок",
+          "event": 5090,
+          "author": {
+              "id": 6506,
+              "name": "Marjorie Trantow"
+          },
+          "created": "2025-07-16 19:58:54",
+          "updated": null,
+          "parent": null,
+          "replies": []
+      }
+      ```
 
-  - `DELETE: /admin/comments/{commentId}` — Удаление комментария администратором
+  - `DELETE: /admin/comments/{commentId}` — Удаление комментария администратором вручную
 
     Параметры пути:
 
@@ -328,7 +346,7 @@
     Ответ: HTTP статус `204 No Content` при успешном удалении
 
 
-  - `GET: /admin/comments/reports` — Получение списка жалоб на комментарии
+  - `GET: /admin/comments/reports` — Получение списка жалоб на все комментарии
 
     Параметры запроса:
 
@@ -339,17 +357,42 @@
     | `size`    | `int`    | ❌          | `10`                   | Количество элементов на странице         |
 
     Метод: `CommentAdminController.findReports()`  
-    Ответ: Список объектов `CommentReportDto`  
-    Пример ответа:
+    Пример тела ответа: Список объектов `CommentReportDto`  
 
     ```json
     [
         {
-            "id": 101,
-            "commentId": 11,
-            "userId": 6508,
-            "reason": "Спам",
-            "created": "2025-07-16 21:30:00"
+            "id": 1,
+            "reason": "Спам и нецензурная лексика",
+            "created": "2025-07-16 20:47:29",
+            "comment": 9,
+            "reporter": {
+                "id": 6507,
+                "name": "Becky Nolan"
+            },
+            "status": "PENDING"
+        },
+        {
+            "id": 2,
+            "reason": "Пропаганда терроризма",
+            "created": "2025-07-16 21:15:12",
+            "comment": 9,
+            "reporter": {
+                "id": 6510,
+                "name": "Dennis Cummerata"
+            },
+            "status": "PENDING"
+        },
+        {
+            "id": 3,
+            "reason": "Нас держать подвал заставлять писать README.md ПОМОГИТ",
+            "created": "2025-07-16 21:16:16",
+            "comment": 6,
+            "reporter": {
+                "id": 6510,
+                "name": "Dennis Cummerata"
+            },
+            "status": "PENDING"
         }
     ]
     ```
@@ -372,16 +415,30 @@
 
     Метод: `CommentAdminController.findReportsByCommentId()`  
     Ответ: Список `CommentReportDto` по конкретному комментарию
-
+    ```json
+    [
+        {
+            "id": 3,
+            "reason": "Нас держать подвал заставлять писать README.md ПОМОГИТ",
+            "created": "2025-07-16 21:16:16",
+            "comment": 6,
+            "reporter": {
+                "id": 6510,
+                "name": "Dennis Cummerata"
+            },
+            "status": "PENDING"
+        }
+    ]
+    ```
 
   - `PATCH: /admin/comments/reports` — Ответ на жалобы (массово)
 
-    Тело запроса (`RespondToReportRequest`):
+    Пример тела запроса (`RespondToReportRequest`):
 
     ```json
     {
-        "reports": [101, 102],
-        "action": "REJECT"
+        "reports": [1],
+        "action": "HIDE"
     }
     ```
 
@@ -392,6 +449,31 @@
 
     Метод: `CommentAdminController.respondToReport()`  
     Ответ: Список объектов `CommentReportDto` с применённым действием
-
+    ```json
+    [
+        {
+            "id": 1,
+            "reason": "Спам и нецензурная лексика",
+            "created": "2025-07-16 20:47:29",
+            "comment": 9,
+            "reporter": {
+                "id": 6507,
+                "name": "Becky Nolan"
+            },
+            "status": "APPROVED"
+        },
+        {
+            "id": 2,
+            "reason": "Пропаганда терроризма",
+            "created": "2025-07-16 21:15:12",
+            "comment": 9,
+            "reporter": {
+                "id": 6510,
+                "name": "Dennis Cummerata"
+            },
+            "status": "APPROVED"
+        }
+    ]
+    ```
 
 
