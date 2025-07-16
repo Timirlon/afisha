@@ -1,9 +1,11 @@
 package com.practice.mainsvc.service;
 
+import com.practice.mainsvc.exception.InvalidConditionException;
 import com.practice.mainsvc.exception.NotFoundException;
 import com.practice.mainsvc.exception.RequestInputException;
 import com.practice.mainsvc.model.Comment;
 import com.practice.mainsvc.model.Event;
+import com.practice.mainsvc.model.PublicationState;
 import com.practice.mainsvc.model.User;
 import com.practice.mainsvc.repository.CommentRepository;
 import com.practice.mainsvc.repository.EventRepository;
@@ -68,6 +70,12 @@ public class CommentService {
     public Comment createNew(Comment comment, Integer parentId, Integer userId, Integer eventId) {
         User commentAuthor = findUserById(userId);
 
+        Event commentedEvent = findEventById(eventId);
+
+        if (commentedEvent.getState() != PublicationState.PUBLISHED) {
+            throw new InvalidConditionException("Commenting allowed only on published events.");
+        }
+
         if (parentId != null) {
             Comment parent = findCommentWithParent(parentId);
 
@@ -81,8 +89,6 @@ public class CommentService {
                 comment.setParent(parent);
             }
         }
-
-        Event commentedEvent = findEventById(eventId);
 
         comment.setAuthor(commentAuthor);
         comment.setEvent(commentedEvent);

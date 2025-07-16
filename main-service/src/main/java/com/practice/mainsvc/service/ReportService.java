@@ -3,6 +3,7 @@ package com.practice.mainsvc.service;
 import com.practice.mainsvc.controller.comment.ReportAction;
 import com.practice.mainsvc.controller.comment.ReportSort;
 import com.practice.mainsvc.exception.NotFoundException;
+import com.practice.mainsvc.exception.RequestInputException;
 import com.practice.mainsvc.model.Comment;
 import com.practice.mainsvc.model.CommentReport;
 import com.practice.mainsvc.model.ReportStatus;
@@ -35,6 +36,14 @@ public class ReportService {
         User reporter = findUserById(reporterId);
 
         Comment reportedComment = findCommentById(commentId);
+
+        if (reportedComment.getAuthor().getId() == reporterId) {
+            throw new RequestInputException("You can not report your own comment.");
+        }
+
+        if (reportedComment.getHidden()) {
+            throw new RequestInputException("Comment already hidden.");
+        }
 
         report.setReporter(reporter);
         report.setComment(reportedComment);
