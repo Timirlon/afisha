@@ -59,7 +59,8 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
     void deleteByIdAndAllRelated(int id);
 
 
-    void deleteAllByIdIn(Collection<Integer> ids);
+    @Transactional
+    void deleteAllByIdInOrParent_IdIn(Collection<Integer> ids, Collection<Integer> parentIds);
 
     List<Comment> findAllByIdIn(Collection<Integer> ids);
 }

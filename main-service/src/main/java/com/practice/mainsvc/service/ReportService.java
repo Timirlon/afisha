@@ -121,9 +121,9 @@ public class ReportService {
                     .toList();
 
             Collection<CommentReport> foundReports = reportRepository.findAllByComment_IdIn(commentIds);
-            reportRepository.deleteAllByComment_IdIn(commentIds);
+            reportRepository.deleteAllByComment_IdInOrComment_Parent_IdIn(commentIds, commentIds);
 
-            commentRepository.deleteAllByIdIn(commentIds);
+            commentRepository.deleteAllByIdInOrParent_IdIn(commentIds, commentIds);
 
             return foundReports;
         }

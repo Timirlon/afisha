@@ -1,5 +1,6 @@
 package com.practice.mainsvc.mapper;
 
+import com.practice.mainsvc.dto.comment.CommentDetailedDto;
 import com.practice.mainsvc.dto.comment.CommentFullDto;
 import com.practice.mainsvc.dto.comment.CommentShortDto;
 import com.practice.mainsvc.dto.comment.CommentRequestDto;
@@ -57,7 +58,7 @@ public class CommentMapper {
 
     public CommentFullDto toFullDto(Comment comment) {
         CommentFullDto fullDto = new CommentFullDto(
-                toShortDto(comment));
+                toDetailedDto(comment));
 
         if (comment.getParent() != null) {
             fullDto.setParent(
@@ -71,6 +72,15 @@ public class CommentMapper {
         }
 
         return fullDto;
+    }
+
+    public CommentDetailedDto toDetailedDto(Comment comment) {
+        CommentDetailedDto detailedDto = new CommentDetailedDto(
+                toShortDto(comment));
+
+        detailedDto.setHidden(comment.getHidden());
+
+        return detailedDto;
     }
 
     public Comment fromDto(CommentRequestDto dto) {

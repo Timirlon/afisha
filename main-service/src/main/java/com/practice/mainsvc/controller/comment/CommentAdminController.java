@@ -1,7 +1,7 @@
 package com.practice.mainsvc.controller.comment;
 
 import com.practice.mainsvc.client.StatisticsClient;
-import com.practice.mainsvc.dto.comment.CommentFullDto;
+import com.practice.mainsvc.dto.comment.CommentDetailedDto;
 import com.practice.mainsvc.dto.report.CommentReportDto;
 import com.practice.mainsvc.dto.report.RespondToReportRequest;
 import com.practice.mainsvc.exception.RequestInputException;
@@ -37,16 +37,18 @@ public class CommentAdminController {
     ReportMapper reportMapper;
 
     @PatchMapping("/{commentId}")
-    public CommentFullDto updateVisibility(@PathVariable int commentId,
-                                           @RequestParam String visibility,
-                                           HttpServletRequest servletRequest) {
-        Comment result = commentService.updateVisibilityById(commentId, visibility);
+    public CommentDetailedDto updateVisibility(@PathVariable int commentId,
+                                               @RequestParam String visibility,
+                                               HttpServletRequest servletRequest) {
+
+        VisibilityPatch vsbMethod = getVisibilityMethodFromStr(visibility);
+        Comment result = commentService.updateVisibilityById(commentId, vsbMethod);
 
         statisticsClient.hit(
                 String.format("/admin/comments/%d", commentId),
                 servletRequest);
 
-        return commentMapper.toFullDto(result);
+        return commentMapper.toDetailedDto(result);
     }
 
     @DeleteMapping("/{commentId}")
@@ -54,7 +56,7 @@ public class CommentAdminController {
     public void deleteById(@PathVariable int commentId,
                            HttpServletRequest servletRequest) {
 
-        commentService.deleteByIdAdminMethod(commentId);
+        commentService.deleteByIdAdminRequest(commentId);
 
         statisticsClient.hit(
                 String.format("/admin/comments/%d", commentId),
@@ -103,6 +105,18 @@ public class CommentAdminController {
                 servletRequest);
 
         return reportMapper.toDto(result);
+    }
+
+    private VisibilityPatch getVisibilityMethodFromStr(String str) {
+        if (str.equalsIgnoreCase(VisibilityPatch.HIDE.name())) {
+            return VisibilityPatch.HIDE;
+        }
+
+        if (str.equalsIgnoreCase(VisibilityPatch.UNHIDE.name())) {
+            return VisibilityPatch.UNHIDE;
+        }
+
+        throw new RequestInputException("Incorrect visibility modification method.");
     }
 
     private ReportAction getActionFromStr(String str) {

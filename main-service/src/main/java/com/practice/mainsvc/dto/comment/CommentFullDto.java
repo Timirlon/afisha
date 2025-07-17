@@ -11,17 +11,13 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CommentFullDto extends CommentShortDto {
+public class CommentFullDto extends CommentDetailedDto {
     CommentShortDto parent;
 
     List<CommentShortDto> replies = new ArrayList<>();
 
-    public CommentFullDto(CommentShortDto commentShortDto) {
-        this.setId(commentShortDto.getId());
-        this.setAuthor(commentShortDto.getAuthor());
-        this.setText(commentShortDto.getText());
-        this.setEvent(commentShortDto.getEvent());
-        this.setCreated(commentShortDto.getCreated());
-        this.setUpdated(commentShortDto.getUpdated());
+    public CommentFullDto(CommentDetailedDto detailedDto) {
+        super(detailedDto);
+        this.setHidden(detailedDto.getHidden());
     }
 }

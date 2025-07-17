@@ -2,6 +2,7 @@ package com.practice.mainsvc.repository;
 
 import com.practice.mainsvc.model.CommentReport;
 import com.practice.mainsvc.model.ReportStatus;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,7 +18,9 @@ public interface ReportRepository extends JpaRepository<CommentReport, Integer> 
 
     Collection<CommentReport> findAllByIdIn(Collection<Integer> ids);
 
-    void deleteAllByComment_Id(int commentId);
+    @Transactional
+    void deleteAllByComment_IdOrComment_Parent_Id(int commentId, int parentId);
 
-    void deleteAllByComment_IdIn(Collection<Integer> commentIds);
+    @Transactional
+    void deleteAllByComment_IdInOrComment_Parent_IdIn(Collection<Integer> commentIds, Collection<Integer> parentIds);
 }

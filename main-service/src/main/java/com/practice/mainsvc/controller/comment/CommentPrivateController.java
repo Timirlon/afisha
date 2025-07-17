@@ -1,6 +1,7 @@
 package com.practice.mainsvc.controller.comment;
 
 import com.practice.mainsvc.client.StatisticsClient;
+import com.practice.mainsvc.dto.comment.CommentDetailedDto;
 import com.practice.mainsvc.dto.comment.CommentFullDto;
 import com.practice.mainsvc.dto.comment.CommentRequestDto;
 import com.practice.mainsvc.dto.report.CommentReportDto;
@@ -35,10 +36,10 @@ public class CommentPrivateController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CommentFullDto createNew(@RequestBody @Valid CommentRequestDto commentDto,
-                                    @PathVariable int userId,
-                                    @RequestParam(name = "event") int eventId,
-                                    HttpServletRequest servletRequest) {
+    public CommentDetailedDto createNew(@RequestBody @Valid CommentRequestDto commentDto,
+                                        @PathVariable int userId,
+                                        @RequestParam(name = "event") int eventId,
+                                        HttpServletRequest servletRequest) {
         Comment commentRequest = commentMapper.fromDto(commentDto);
         Integer parentId = commentDto.getParent();
 
@@ -48,14 +49,14 @@ public class CommentPrivateController {
                 String.format("/users/%d/comments?event=%d", userId, eventId),
                 servletRequest);
 
-        return commentMapper.toFullDto(result);
+        return commentMapper.toDetailedDto(result);
     }
 
     @PatchMapping("/{commentId}")
-    public CommentFullDto updateById(@RequestBody @Valid CommentRequestDto commentDto,
-                                     @PathVariable int commentId,
-                                     @PathVariable int userId,
-                                     HttpServletRequest servletRequest) {
+    public CommentDetailedDto updateById(@RequestBody @Valid CommentRequestDto commentDto,
+                                         @PathVariable int commentId,
+                                         @PathVariable int userId,
+                                         HttpServletRequest servletRequest) {
 
         Comment commentRequest = commentMapper.fromDto(commentDto);
 
@@ -66,7 +67,7 @@ public class CommentPrivateController {
                 servletRequest);
 
 
-        return commentMapper.toFullDto(result);
+        return commentMapper.toDetailedDto(result);
     }
 
     @DeleteMapping("/{commentId}")

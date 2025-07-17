@@ -1,5 +1,6 @@
 package com.practice.mainsvc.service;
 
+import com.practice.mainsvc.controller.comment.VisibilityPatch;
 import com.practice.mainsvc.exception.InvalidConditionException;
 import com.practice.mainsvc.exception.NotFoundException;
 import com.practice.mainsvc.exception.RequestInputException;
@@ -9,6 +10,7 @@ import com.practice.mainsvc.model.PublicationState;
 import com.practice.mainsvc.model.User;
 import com.practice.mainsvc.repository.CommentRepository;
 import com.practice.mainsvc.repository.EventRepository;
+import com.practice.mainsvc.repository.ReportRepository;
 import com.practice.mainsvc.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,7 @@ public class CommentService {
 
     EventRepository eventRepository;
     UserRepository userRepository;
+    ReportRepository reportRepository;
 
     public Page<Comment> findAllByEvent(int eventId, int from, int size, boolean showHidden) {
         findEventById(eventId);
@@ -131,18 +134,19 @@ public class CommentService {
                     String.format("Comment with id=%d was not found", commentId));
         }
 
+        reportRepository.deleteAllByComment_IdOrComment_Parent_Id(commentId, commentId);
         commentRepository.deleteByIdAndAllRelated(commentId);
     }
 
-    public Comment updateVisibilityById(int commentId, String visibility) {
+    public Comment updateVisibilityById(int commentId, VisibilityPatch visibility) {
         Comment foundComment = findCommentById(commentId);
 
-        if (visibility.equalsIgnoreCase("HIDE")) {
+        if (visibility == VisibilityPatch.HIDE) {
             foundComment.setHidden(true);
-        } else if (visibility.equalsIgnoreCase("UNHIDE")) {
+        } else if (visibility == VisibilityPatch.UNHIDE) {
             foundComment.setHidden(false);
         } else {
-            throw new RequestInputException("Incorrect visibility modification method.");
+            return null;
         }
 
         commentRepository.save(foundComment);
@@ -150,7 +154,10 @@ public class CommentService {
         return foundComment;
     }
 
-    public void deleteByIdAdminMethod(int commentId) {
+    public void deleteByIdAdminRequest(int commentId) {
+        findCommentById(commentId);
+
+        reportRepository.deleteAllByComment_IdOrComment_Parent_Id(commentId, commentId);
         commentRepository.deleteByIdAndAllRelated(commentId);
     }
 
