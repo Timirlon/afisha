@@ -24,7 +24,7 @@ public class RequestService {
     EventRepository eventRepository;
 
     public List<ParticipationRequest> findAllByRequesterId(int requesterId) {
-        User requester = findUserByIdOrElseThrow(requesterId);
+        findUserByIdOrElseThrow(requesterId);
 
         return requestRepository.findAllByRequester_Id(requesterId);
     }
@@ -70,7 +70,7 @@ public class RequestService {
     }
 
     public ParticipationRequest cancel(int requestId, int userId) {
-        User user = findUserByIdOrElseThrow(userId);
+        findUserByIdOrElseThrow(userId);
 
         ParticipationRequest request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException(
@@ -101,7 +101,7 @@ public class RequestService {
         }
 
         if (status == ConfirmationStatus.CONFIRMED
-                && event.getParticipantLimit() == event.getConfirmedRequests()) {
+                && event.getParticipantLimit().equals(event.getConfirmedRequests())) {
 
             throw new InvalidConditionException("The participant limit has been reached.");
         }
