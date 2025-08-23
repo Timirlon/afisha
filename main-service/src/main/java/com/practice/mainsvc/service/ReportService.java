@@ -11,6 +11,7 @@ import com.practice.mainsvc.model.User;
 import com.practice.mainsvc.repository.CommentRepository;
 import com.practice.mainsvc.repository.ReportRepository;
 import com.practice.mainsvc.repository.UserRepository;
+import com.practice.mainsvc.util.PageRequestConstants;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -56,8 +57,7 @@ public class ReportService {
     }
 
     public Page<CommentReport> findAll(ReportSort sort, int from, int size) {
-        int page = from / size;
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequestConstants.getDefault(from, size);
 
         if (sort == ReportSort.ALL) {
             return reportRepository.findAll(pageable);

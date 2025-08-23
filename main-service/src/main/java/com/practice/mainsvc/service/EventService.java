@@ -3,6 +3,7 @@ package com.practice.mainsvc.service;
 import com.practice.mainsvc.exception.RequestInputException;
 import com.practice.mainsvc.util.AdminStateAction;
 import com.practice.mainsvc.util.EventSort;
+import com.practice.mainsvc.util.PageRequestConstants;
 import com.practice.mainsvc.util.UserStateAction;
 import com.practice.mainsvc.exception.InvalidConditionException;
 import com.practice.mainsvc.exception.NotFoundException;
@@ -37,9 +38,7 @@ public class EventService {
     CategoryRepository categoryRepository;
 
     public Page<Event> findAllByInitiatorId(int initiatorId, int from, int size) {
-        int pageNumber = from / size;
-        Pageable pageable = PageRequest.of(pageNumber, size);
-
+        Pageable pageable = PageRequestConstants.getDefault(from, size);
 
         return eventRepository.findAllByInitiator_Id(initiatorId, pageable);
     }
@@ -161,7 +160,7 @@ public class EventService {
                                                                String rangeEnd,
                                                                int from,
                                                                int size) {
-
+        Pageable pageable = PageRequestConstants.getDefault(from, size);
 
         List<PublicationState> convertedStates = null;
         if (eventStates != null) {
@@ -188,11 +187,6 @@ public class EventService {
         if (rangeEnd != null) {
             end = parse(rangeEnd);
         }
-
-
-        int pageNumber = from / size;
-        Pageable pageable = PageRequest.of(pageNumber, size);
-
 
         return eventRepository.findAllByMultipleParamsAdminRequest(initiatorIds, convertedStates, categoryIds, start, end, pageable);
     }
@@ -293,8 +287,7 @@ public class EventService {
                                                                 EventSort sort,
                                                                 int from,
                                                                 int size) {
-        int pageNumber = from / size;
-        Pageable pageable = PageRequest.of(pageNumber, size);
+        Pageable pageable = PageRequestConstants.getDefault(from, size);
 
         if (searchText == null || searchText.isBlank()) {
             searchText = "";
