@@ -12,6 +12,7 @@ import com.practice.mainsvc.repository.CommentRepository;
 import com.practice.mainsvc.repository.EventRepository;
 import com.practice.mainsvc.repository.ReportRepository;
 import com.practice.mainsvc.repository.UserRepository;
+import com.practice.mainsvc.util.PageRequestConstants;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -36,8 +37,7 @@ public class CommentService {
     public Page<Comment> findAllByEvent(int eventId, int from, int size, boolean showHidden) {
         findEventById(eventId);
 
-        int page = from / size;
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequestConstants.getDefault(from, size);
 
         if (showHidden) {
             return commentRepository.findAllByEvent_IdAndParentIsNullOrderByCreatedAtDesc(eventId, pageable);
@@ -60,8 +60,7 @@ public class CommentService {
 
     public Page<Comment> findRepliesByParentId(int parentId, int from,
                                                int size, boolean showHidden) {
-        int page = from / size;
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequestConstants.getDefault(from, size);
 
         if (showHidden) {
             return commentRepository.findAllByParent_IdOrderByCreatedAt(parentId, pageable);

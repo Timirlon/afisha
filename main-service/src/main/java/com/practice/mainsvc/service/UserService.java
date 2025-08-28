@@ -3,6 +3,7 @@ package com.practice.mainsvc.service;
 import com.practice.mainsvc.exception.NotFoundException;
 import com.practice.mainsvc.model.User;
 import com.practice.mainsvc.repository.UserRepository;
+import com.practice.mainsvc.util.PageRequestConstants;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,8 +22,7 @@ public class UserService {
     UserRepository userRepository;
 
     public Page<User> findAllByIdIn(Collection<Integer> ids, int from, int size) {
-        int pageNumber = from / size;
-        Pageable pageable = PageRequest.of(pageNumber, size);
+        Pageable pageable = PageRequestConstants.getDefault(from, size);
 
         if (ids == null || ids.isEmpty()) {
             return userRepository.findAllByOrderById(pageable);

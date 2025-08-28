@@ -5,6 +5,7 @@ import com.practice.mainsvc.model.Compilation;
 import com.practice.mainsvc.model.Event;
 import com.practice.mainsvc.repository.CompilationRepository;
 import com.practice.mainsvc.repository.EventRepository;
+import com.practice.mainsvc.util.PageRequestConstants;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -72,8 +73,7 @@ public class CompilationService {
     }
 
     public Page<Compilation> findAllByPinned(Boolean pinned, int from, int size) {
-        int pageNumber = from / size;
-        Pageable pageable = PageRequest.of(pageNumber, size);
+        Pageable pageable = PageRequestConstants.getDefault(from, size);
 
         if (pinned == null) {
             return compilationRepository.findAll(pageable);

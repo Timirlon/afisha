@@ -3,6 +3,7 @@ package com.practice.mainsvc.service;
 import com.practice.mainsvc.exception.NotFoundException;
 import com.practice.mainsvc.model.Category;
 import com.practice.mainsvc.repository.CategoryRepository;
+import com.practice.mainsvc.util.PageRequestConstants;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -19,8 +20,7 @@ public class CategoryService {
     CategoryRepository categoryRepository;
 
     public Page<Category> findAll(int from, int size) {
-        int pageNumber = from / size;
-        Pageable pageable = PageRequest.of(pageNumber, size);
+        Pageable pageable = PageRequestConstants.getDefault(from, size);
 
         return categoryRepository.findAll(pageable);
     }
