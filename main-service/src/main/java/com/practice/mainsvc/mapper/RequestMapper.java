@@ -4,29 +4,24 @@ import com.practice.mainsvc.dto.request.EventRequestStatusUpdateResult;
 import com.practice.mainsvc.dto.request.ParticipationRequestDto;
 import com.practice.mainsvc.model.ConfirmationStatus;
 import com.practice.mainsvc.model.ParticipationRequest;
+import com.practice.mainsvc.util.DateTimeFormatConstants;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.practice.mainsvc.util.DateTimeFormatConstants.format;
-
 @Component
 public class RequestMapper {
 
     public ParticipationRequestDto toDto(ParticipationRequest request) {
-        ParticipationRequestDto dto = new ParticipationRequestDto();
-
-        dto.setCreated(
-                format(request.getCreated()));
-
-        dto.setEvent(request.getEvent().getId());
-        dto.setId(request.getId());
-        dto.setRequester(request.getRequester().getId());
-        dto.setStatus(request.getStatus().name());
-
-
-        return dto;
+        return ParticipationRequestDto.builder()
+                .id(request.getId())
+                .created(DateTimeFormatConstants.format(
+                        request.getCreated()))
+                .event(request.getEvent().getId())
+                .requester(request.getRequester().getId())
+                .status(request.getStatus().name())
+                .build();
     }
 
     public List<ParticipationRequestDto> toDto(List<ParticipationRequest> requests) {
@@ -37,11 +32,8 @@ public class RequestMapper {
 
     public EventRequestStatusUpdateResult toUpdDto(List<ParticipationRequest> requests) {
 
-        EventRequestStatusUpdateResult dto = new EventRequestStatusUpdateResult();
-
         List<ParticipationRequestDto> confirmedRequests = new ArrayList<>();
         List<ParticipationRequestDto> rejectedRequests = new ArrayList<>();
-
 
         requests.stream()
                 .map(this::toDto)
@@ -58,9 +50,10 @@ public class RequestMapper {
                     }
                 });
 
-        dto.setConfirmedRequests(confirmedRequests);
-        dto.setRejectedRequests(rejectedRequests);
 
-        return dto;
+        return EventRequestStatusUpdateResult.builder()
+                .confirmedRequests(confirmedRequests)
+                .rejectedRequests(rejectedRequests)
+                .build();
     }
 }

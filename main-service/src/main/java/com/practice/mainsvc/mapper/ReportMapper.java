@@ -3,6 +3,7 @@ package com.practice.mainsvc.mapper;
 import com.practice.mainsvc.dto.report.CommentReportDto;
 import com.practice.mainsvc.dto.report.NewCommentReportDto;
 import com.practice.mainsvc.model.CommentReport;
+import com.practice.mainsvc.util.DateTimeFormatConstants;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -12,8 +13,6 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 import java.util.List;
 
-import static com.practice.mainsvc.util.DateTimeFormatConstants.format;
-
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 
@@ -22,27 +21,23 @@ public class ReportMapper {
     UserMapper userMapper;
 
     public CommentReport fromDto(NewCommentReportDto dto) {
-        CommentReport model = new CommentReport();
-
-        model.setReason(dto.getReason());
-
-        return model;
+        return CommentReport.builder()
+                .reason(dto.getReason())
+                .build();
     }
 
     public CommentReportDto toDto(CommentReport report) {
-        CommentReportDto dto = new CommentReportDto();
-
-        dto.setId(report.getId());
-        dto.setReason(report.getReason());
-        dto.setComment(report.getComment().getId());
-        dto.setStatus(report.getStatus().name());
-        dto.setCreated(
-                format(report.getCreated()));
-        dto.setReporter(
-                userMapper.toShortDto(report.getReporter()));
-
-
-        return dto;
+        return CommentReportDto
+                .builder()
+                .id(report.getId())
+                .reason(report.getReason())
+                .comment(report.getComment().getId())
+                .status(report.getStatus().name())
+                .created(DateTimeFormatConstants.format(
+                        report.getCreated()))
+                .reporter(userMapper.toShortDto(
+                        report.getReporter()))
+                .build();
     }
 
     public List<CommentReportDto> toDto(Page<CommentReport> reports) {

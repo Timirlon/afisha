@@ -1,15 +1,15 @@
 package com.practice.mainsvc.dto.comment;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
+@ToString
 @EqualsAndHashCode(callSuper = true)
-@Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CommentFullDto extends CommentDetailedDto {
     CommentShortDto parent;

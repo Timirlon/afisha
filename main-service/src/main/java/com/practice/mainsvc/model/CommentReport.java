@@ -1,14 +1,16 @@
 package com.practice.mainsvc.model;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Data;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 
 @Entity
 @Table(name = "comment_reports")

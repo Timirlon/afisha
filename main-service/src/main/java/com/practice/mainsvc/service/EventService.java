@@ -18,7 +18,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +43,7 @@ public class EventService {
     }
 
     public Event create(Event event, int initiatorId, int categoryId) {
+        // Проверка переданных значений
         User user = findUserById(initiatorId);
 
         Category category = findCategoryById(categoryId);
@@ -56,6 +56,18 @@ public class EventService {
         event.setCreated(LocalDateTime.now());
         event.setState(PublicationState.PENDING);
 
+        // Значения по умолчанию
+        if (event.getPaid() == null) {
+            event.setPaid(false);
+        }
+
+        if (event.getParticipantLimit() == null) {
+            event.setParticipantLimit(0);
+        }
+
+        if (event.getRequestModeration() == null) {
+            event.setRequestModeration(true);
+        }
 
         eventRepository.save(event);
 

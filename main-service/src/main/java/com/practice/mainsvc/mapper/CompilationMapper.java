@@ -20,18 +20,14 @@ public class CompilationMapper {
     EventMapper eventMapper;
 
     public CompilationDto toDto(Compilation compilation) {
-        CompilationDto dto = new CompilationDto();
-
-        dto.setId(compilation.getId());
-        dto.setTitle(compilation.getTitle());
-        dto.setPinned(compilation.getPinned());
-        dto.setEvents(
-                compilation.getEvents().stream()
+        return CompilationDto.builder()
+                .id(compilation.getId())
+                .title(compilation.getTitle())
+                .pinned(compilation.getPinned())
+                .events(compilation.getEvents().stream()
                         .map(eventMapper::toShortDto)
-                        .toList());
-
-
-        return dto;
+                        .toList())
+                .build();
     }
 
     public List<CompilationDto> toDto(Page<Compilation> compilations) {
@@ -41,20 +37,16 @@ public class CompilationMapper {
     }
 
     public Compilation fromDto(NewCompilationDto dto) {
-        Compilation compilation = new Compilation();
-
-        compilation.setTitle(dto.getTitle());
-        compilation.setPinned(dto.getPinned());
-
-        return compilation;
+        return Compilation.builder()
+                .title(dto.getTitle())
+                .pinned(dto.getPinned())
+                .build();
     }
 
     public Compilation fromDto(UpdateCompilationRequest dto) {
-        Compilation compilation = new Compilation();
-
-        compilation.setTitle(dto.getTitle());
-        compilation.setPinned(dto.getPinned());
-
-        return compilation;
+        return Compilation.builder()
+                .title(dto.getTitle())
+                .pinned(dto.getPinned())
+                .build();
     }
 }

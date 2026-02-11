@@ -11,13 +11,10 @@ import java.util.List;
 @Component
 public class CategoryMapper {
     public CategoryDto toDto(Category category) {
-        CategoryDto categoryDto = new CategoryDto();
-
-        categoryDto.setId(category.getId());
-        categoryDto.setName(category.getName());
-
-
-        return categoryDto;
+        return CategoryDto.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .build();
     }
 
     public List<CategoryDto> toDto(Page<Category> categories) {
@@ -27,10 +24,8 @@ public class CategoryMapper {
     }
 
     public Category fromDto(NewCategoryDto newCategory) {
-        Category category = new Category();
-
-        category.setName(newCategory.getName());
-
-        return category;
+        return Category.builder()
+                .name(newCategory.getName())
+                .build();
     }
 }

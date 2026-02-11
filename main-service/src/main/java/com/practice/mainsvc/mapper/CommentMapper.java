@@ -5,6 +5,7 @@ import com.practice.mainsvc.dto.comment.CommentFullDto;
 import com.practice.mainsvc.dto.comment.CommentShortDto;
 import com.practice.mainsvc.dto.comment.CommentRequestDto;
 import com.practice.mainsvc.model.Comment;
+import com.practice.mainsvc.util.DateTimeFormatConstants;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -14,8 +15,6 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 import java.util.List;
 
-import static com.practice.mainsvc.util.DateTimeFormatConstants.format;
-
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 
@@ -24,24 +23,17 @@ public class CommentMapper {
     UserMapper userMapper;
 
     public CommentShortDto toShortDto(Comment comment) {
-        CommentShortDto shortDto = new CommentShortDto();
-
-        shortDto.setId(comment.getId());
-        shortDto.setText(comment.getText());
-        shortDto.setEvent(comment.getEvent().getId());
-        shortDto.setAuthor(
-                userMapper.toShortDto(comment.getAuthor()));
-
-        shortDto.setCreated(
-                format(comment.getCreatedAt()));
-
-        if (comment.getUpdatedAt() != null) {
-            shortDto.setUpdated(
-                    format(comment.getUpdatedAt()));
-        }
-
-
-        return shortDto;
+        return CommentShortDto.builder()
+                .id(comment.getId())
+                .text(comment.getText())
+                .event(comment.getEvent().getId())
+                .author(userMapper.toShortDto(
+                        comment.getAuthor()))
+                .created(DateTimeFormatConstants.format(
+                        comment.getCreatedAt()))
+                .updated(DateTimeFormatConstants.format(
+                        comment.getUpdatedAt()))
+                .build();
     }
 
     public List<CommentShortDto> toShortDto(Page<Comment> comments) {
@@ -54,6 +46,15 @@ public class CommentMapper {
         return comments.stream()
                 .map(this::toShortDto)
                 .toList();
+    }
+
+    public CommentDetailedDto toDetailedDto(Comment comment) {
+        CommentDetailedDto detailedDto = new CommentDetailedDto(
+                toShortDto(comment));
+
+        detailedDto.setHidden(comment.getHidden());
+
+        return detailedDto;
     }
 
     public CommentFullDto toFullDto(Comment comment) {
@@ -72,15 +73,6 @@ public class CommentMapper {
         }
 
         return fullDto;
-    }
-
-    public CommentDetailedDto toDetailedDto(Comment comment) {
-        CommentDetailedDto detailedDto = new CommentDetailedDto(
-                toShortDto(comment));
-
-        detailedDto.setHidden(comment.getHidden());
-
-        return detailedDto;
     }
 
     public Comment fromDto(CommentRequestDto dto) {

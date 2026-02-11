@@ -12,13 +12,11 @@ import java.util.List;
 @Component
 public class UserMapper {
     public UserDto toDto(User user) {
-        UserDto userDto = new UserDto();
-
-        userDto.setId(user.getId());
-        userDto.setName(user.getName());
-        userDto.setEmail(user.getEmail());
-
-        return userDto;
+        return UserDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .build();
     }
 
     public List<UserDto> toDto(Page<User> users) {
@@ -27,21 +25,17 @@ public class UserMapper {
                 .toList();
     }
 
-    public User fromDto(NewUserRequest userRequest) {
-        User user = new User();
-
-        user.setName(userRequest.getName());
-        user.setEmail(userRequest.getEmail());
-
-        return user;
+    public UserShortDto toShortDto(User user) {
+        return UserShortDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .build();
     }
 
-    public UserShortDto toShortDto(User user) {
-        UserShortDto userDto = new UserShortDto();
-
-        userDto.setId(user.getId());
-        userDto.setName(user.getName());
-
-        return userDto;
+    public User fromDto(NewUserRequest userRequest) {
+        return User.builder()
+                .name(userRequest.getName())
+                .email(userRequest.getEmail())
+                .build();
     }
 }

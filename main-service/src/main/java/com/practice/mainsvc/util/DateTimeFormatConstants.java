@@ -14,10 +14,10 @@ public class DateTimeFormatConstants {
     }
 
     public static LocalDateTime parse(String str) {
-        return LocalDateTime.parse(str, getDefault());
+        return str != null ? LocalDateTime.parse(str, getDefault()) : null;
     }
 
     public static String format(LocalDateTime dateTime) {
-        return dateTime.format(getDefault());
+        return dateTime != null ? dateTime.format(getDefault()) : null;
     }
 }
